@@ -34,6 +34,9 @@ L'application complète (prévue : `cp .env.example .env`, puis `docker-compose 
 │   ├── archive/         # sessions archivées
 │   ├── SESSION.md       # état de la session courante
 │   └── DEBUG.md         # bugs en cours / résolus
+├── docs/
+│   ├── regles-remboursement.md  # veille des règles (brouillon à valider)
+│   └── maquettes/site.html      # maquette du site, données fictives
 ├── poc/                 # prototype du flux (jalon 1)
 │   ├── collect.py       # collecte GTFS-RT toutes les 2 min
 │   ├── analyse.py       # rapport par jour
