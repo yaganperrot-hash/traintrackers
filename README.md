@@ -22,6 +22,8 @@ Python 3.12 requis. Pour le prototype :
 ```bash
 python -m venv venv
 venv/Scripts/python -m pip install -r poc/requirements.txt
+venv/Scripts/python -m pip install -r requirements.txt
+venv/Scripts/python -m pytest -q   # tests
 ```
 L'application complète (prévue : `cp .env.example .env`, puis `docker-compose up -d`) arrivera avec le jalon 3.
 
@@ -34,12 +36,16 @@ L'application complète (prévue : `cp .env.example .env`, puis `docker-compose 
 │   ├── archive/         # sessions archivées
 │   ├── SESSION.md       # état de la session courante
 │   └── DEBUG.md         # bugs en cours / résolus
+├── backend/
+│   └── regles.py        # règles d'éligibilité au remboursement (zone critique)
+├── tests/               # pytest (test_regles.py)
 ├── docs/
 │   ├── regles-remboursement.md  # veille des règles (brouillon à valider)
 │   └── maquettes/site.html      # maquette du site, données fictives
 ├── poc/                 # prototype du flux (jalon 1)
 │   ├── collect.py       # collecte GTFS-RT toutes les 2 min
 │   ├── analyse.py       # rapport par jour
+│   ├── regions.py       # gares et TER → région
 │   └── data/            # relevés bruts (gitignored)
 ├── venv/                # environnement Python (gitignored)
 ├── memory/
@@ -47,6 +53,8 @@ L'application complète (prévue : `cp .env.example .env`, puis `docker-compose 
 ├── CLAUDE.md            # règles de travail pour Claude Code
 ├── PROJECT.md           # quoi/pourquoi, décisions, contraintes, risque
 ├── ROADMAP.md           # jalons
+├── requirements.txt     # dépendances (pytest pour l'instant)
+├── pytest.ini
 ├── TODO.md
 └── README.md
 ```
