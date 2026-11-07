@@ -58,6 +58,9 @@ opérateurs concurrents et des trains internationaux. → Prototype du flux en p
 - G30 ne couvre ni TER ni Transilien. TER : règles propres à chaque région.
 - **Flux temps réel** : GTFS-RT « Réseau SNCF TGV, Intercités et TER » sur transport.data.gouv.fr,
   sans authentification. Un rapport de validation (mai 2026) signale des erreurs sur des `stop_id`.
+  Rafraîchi toutes les 2 min, couvre les trains des 60 prochaines minutes → collecte continue
+  obligatoire. Périmètre garanti par la SNCF : TGV et Intercités seulement. Licence ODbL.
+  SIRI Lite Estimated Timetable écarté : ~15,6 Mo compressés par appel (≈ 11 Go/jour à 2 min).
 - **X** : API en paiement à l'usage, sans offre gratuite (sources tierces, à vérifier sur docs.x.com).
 - **Instagram** : publication par API gratuite mais nécessite un compte professionnel et une
   validation Meta. Non retenue pour l'instant (publication manuelle).

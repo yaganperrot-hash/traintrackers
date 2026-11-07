@@ -12,13 +12,18 @@ Le projet renvoie vers les formulaires officiels ; il ne dépose aucune demande 
 aucune donnée personnelle.
 
 ## Statut
-Cadrage terminé. Prochaine étape : prototype du flux temps réel (voir `ROADMAP.md`).
+Jalon 1 en cours : prototype du flux temps réel SNCF (collecte en cours, voir `poc/README.md`).
 
 ## Stack
 Python 3.12 · FastAPI · PostgreSQL 16 · SQLAlchemy 2.x async · APScheduler · HTML/CSS/JS vanilla · Docker
 
 ## Installation
-À venir avec le premier code (jalon 1). Prévu : `cp .env.example .env`, puis `docker-compose up -d`.
+Python 3.12 requis. Pour le prototype :
+```bash
+python -m venv venv
+venv/Scripts/python -m pip install -r poc/requirements.txt
+```
+L'application complète (prévue : `cp .env.example .env`, puis `docker-compose up -d`) arrivera avec le jalon 3.
 
 ## Structure
 ```
@@ -29,6 +34,11 @@ Python 3.12 · FastAPI · PostgreSQL 16 · SQLAlchemy 2.x async · APScheduler �
 │   ├── archive/         # sessions archivées
 │   ├── SESSION.md       # état de la session courante
 │   └── DEBUG.md         # bugs en cours / résolus
+├── poc/                 # prototype du flux (jalon 1)
+│   ├── collect.py       # collecte GTFS-RT toutes les 2 min
+│   ├── analyse.py       # rapport par jour
+│   └── data/            # relevés bruts (gitignored)
+├── venv/                # environnement Python (gitignored)
 ├── memory/
 │   └── lessons.md       # leçons en attente de promotion dans CLAUDE.md
 ├── CLAUDE.md            # règles de travail pour Claude Code

@@ -66,6 +66,10 @@ détectée → proposer la modification avec ses sources ; l'utilisateur valide 
 - `memory/lessons.md` : leçons en attente de promotion en règle ici.
 - `TODO.md` à la racine. Rien d'autre de nouveau à la racine sans raison.
 - Fichiers texte : `encoding="utf-8"` explicite (projet sous Windows, cp1252 par défaut).
+- `zoneinfo` sous Windows : la dépendance `tzdata` est obligatoire (pas de base de fuseaux système).
+- Processus longs (collecte de plusieurs jours) : lancer détaché (`Start-Process … -WindowStyle Hidden`,
+  PID dans un fichier), jamais via `run_in_background`, tué avec la session Claude.
+- Environnement Python : `venv/` à la racine, `venv/Scripts/python`.
 
 ## Autorisations
 - Création et édition de fichiers dans le projet, commandes de test et de build : OK une fois le plan validé.
