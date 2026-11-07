@@ -36,7 +36,23 @@ TOLERANCE_ARRIVEE_S = 5 * 60  # « suivi jusqu'à l'arrivée » = vu à moins de
 
 def produit(trip_id: str) -> str:
     m = re.search(r"F\d+_F:([A-Z0-9]+):", trip_id) or re.search(r":([A-Z]{2,4}):FR:", trip_id)
-    return m.group(1) if m else "?"
+    if m:
+        return m.group(1)
+    # Circulations ajoutées hors GTFS : « OCESN<numéro><F|R> ». R = car (route), F = train.
+    # Produit déduit du numéro — HYPOTHÈSE constatée le 2026-11-07, non documentée par la SNCF.
+    m = re.match(r"OCESN(\d+)([FR])", trip_id)
+    if not m:
+        return "?"
+    num, mode = m.groups()
+    if mode == "R":
+        return "CAR*"
+    if len(num) == 6 and num[0] == "1":
+        return "TRANSILIEN*"
+    if len(num) == 6 and num[0] == "8":
+        return "TER*"
+    if len(num) == 4:
+        return "IC*"
+    return "?"
 
 
 @dataclass
