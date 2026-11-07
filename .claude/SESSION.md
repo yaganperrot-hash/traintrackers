@@ -17,10 +17,9 @@ trains ouvrant droit à remboursement.
   OUI, OGO, IC, TER, LYR, ICE, TRN, CTE, TT ; Eurostar et Renfe absents ; 122 trains « ajoutés »
   sans produit identifiable.
 - SIRI Estimated Timetable écarté du POC (15,6 Mo compressés par appel ≈ 11 Go/jour).
-- **Pas de remote** : dépôt GitHub `traintracker` à créer (`gh` non connecté).
+- Remote : `origin` = git@github.com:yaganperrot-hash/traintrackers.git (poussé le 2026-11-07).
 
 ## Prochaine étape
 1. Vérifier que le collecteur a tourné sans trou (`poc/data/collect.log`).
 2. `venv/Scripts/python poc/analyse.py` sur les journées complètes.
 3. Reporter les conclusions dans `PROJECT.md` (fiabilité, couverture, stockage/jour).
-4. Brancher le remote dès que `gh auth login` est fait ou qu'une URL est fournie.
