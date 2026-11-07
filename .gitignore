@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+logs/
+*.log
+
+# Fichiers générés
+dist/
+build/
+out/
+tmp/
+
+# OS / éditeurs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
