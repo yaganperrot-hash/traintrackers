@@ -146,5 +146,20 @@ publiées par les régions. À traiter au jalon 2 (encodage).
 - [x] TER : garanties des 11 régions du flux (2026-11-07, toutes ⚠️ à confirmer à la main).
 - [ ] TER : confirmer la dérogation française (code des transports L2151-2) et son effet sur l'art. 18.
 - [x] TER : le GTFS ne donne ni région ni marque (2026-11-07) → région par coordonnées des gares.
-- [ ] TER : identifier les trains Nomad Résa (Normandie) et Rémi Express (Centre-Val de Loire).
+- [ ] TER : identifier les trains Nomad Résa (Normandie) et Rémi Express (Centre-Val de Loire) —
+      hypothèses ci-dessous, à confirmer.
+
+### Identification des trains à garantie (hypothèses du 2026-11-07, ⚠️)
+
+- **Région d'un TER** : `poc/regions.py` (gares → région par polygones, région majoritaire des arrêts
+  hors Île-de-France). 39 763 / 39 927 TER rattachés, 11 régions. Limite : 47 lignes interrégionales
+  où la région majoritaire peut différer de la région organisatrice.
+- **Nomad Résa (Normandie)** : TER normand desservant **Paris Saint-Lazare** sur les axes
+  Paris–Rouen–Le Havre, Paris–Caen–Cherbourg, Paris–Trouville-Deauville. Pas Paris–Vernon–Rouen ni
+  Paris–Évreux (Nomad classique). Granville incertain. Source : article 2026 sur les grèves en Normandie
+  (https://www.toutsurmesfinances.com/actualites/?p=1393), pages Nomad.
+- **Rémi Express (Centre-Val de Loire)** : TER Centre desservant **Paris Austerlitz** sur Paris–Orléans–Tours
+  et Paris–Bourges–Montluçon. Source : page Rémi (≈ 2024) ; nouveau contrat avec lot « Rémi Express »
+  depuis le 2026-09-28 (avis TED 301095-2026) → liste à reconfirmer.
+- Ces règles se testent sur les données collectées (noms de lignes, gares desservies) avant encodage.
 - [x] Règles « suppression » et « correspondance » (art. 12, 18, 19 lus sur EUR-Lex).
