@@ -52,6 +52,13 @@ opérateurs concurrents et des trains internationaux. → Prototype du flux en p
 - **2026-11-07 — Veille** : Claude surveille les politiques d'API et les règles de remboursement,
   propose les modifications avec leurs sources ; l'utilisateur valide.
 
+- **2026-11-07 — Tous les trains restent visibles, avec leur explication** : TER et OUIGO sont
+  affichés comme les autres. Chaque train porte sa règle : OUIGO = « indemnisation automatique par
+  e-mail, rien à faire » ; TER = « pas de remboursement par train pour un voyageur occasionnel » (+ lien
+  vers la garantie de la région). Un visiteur qui ne trouve pas son train ne doit jamais croire à un bug.
+- **2026-11-07 — Seuil évalué à chaque arrêt** : un train entre dans le post s'il dépasse son seuil à
+  au moins un arrêt, avec la mention « selon votre gare d'arrivée ». Le site demande la gare d'arrivée.
+
 ## Veille initiale (2026-11-07) — à confirmer aux sources officielles
 - **G30** (TGV INOUI, Intercités) : indemnité à partir de 30 min de retard à l'arrivée. Les barèmes
   diffèrent selon les sources → à vérifier dans les conditions officielles avant encodage.
