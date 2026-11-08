@@ -42,7 +42,11 @@ L'application complète (prévue : `cp .env.example .env`, puis `docker-compose 
 ├── tests/               # pytest (test_regles.py, test_marques.py)
 ├── docs/
 │   ├── regles-remboursement.md  # veille des règles (validé le 2026-11-07)
-│   └── maquettes/site.html      # maquette du site, données fictives
+│   └── maquettes/       # maquettes « Le reçu », données fictives
+│       ├── site.html        # recherche d'un train → verdict
+│       ├── aujourdhui.html  # bilan du jour
+│       ├── style.css        # styles partagés
+│       └── donnees.js       # trains fictifs + règles simplifiées
 ├── poc/                 # prototype du flux (jalon 1)
 │   ├── collect.py       # collecte GTFS-RT toutes les 2 min
 │   ├── analyse.py       # rapport par jour
@@ -51,7 +55,10 @@ L'application complète (prévue : `cp .env.example .env`, puis `docker-compose 
 ├── venv/                # environnement Python (gitignored)
 ├── memory/
 │   └── lessons.md       # leçons en attente de promotion dans CLAUDE.md
+├── .impeccable/         # brief de surface et décisions de design (plugin Impeccable)
 ├── CLAUDE.md            # règles de travail pour Claude Code
+├── PRODUCT.md           # publics, ton, principes du produit
+├── DESIGN.md            # système visuel « Le reçu »
 ├── PROJECT.md           # quoi/pourquoi, décisions, contraintes, risque
 ├── ROADMAP.md           # jalons
 ├── requirements.txt     # dépendances (pytest pour l'instant)

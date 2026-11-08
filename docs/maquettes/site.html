@@ -3,312 +3,312 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Maquette — Mon train était en retard</title>
-<!-- Maquette « parcours voyageur » (2026-11-08), reportée depuis le canevas Claude Design.
-     Données FICTIVES. Les textes des règles suivent docs/regles-remboursement.md (points ⚠️ inclus). -->
+<title>Mon train était en retard — maquette</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 <style>
-  :root {
-    --bg: #F7F5F0; --card: #FFFFFF; --soft: #FBFAF7; --ink: #1C1C1C; --muted: #5E5B55; --line: #E3E0D8;
-    --field: #CFCBC1; --red: #B3261E; --amber: #8A5300;
-    --ok-bg: #E8F3EC; --ok: #1B6B34; --auto-bg: #E8EEFB; --auto: #1D4ED8; --none-bg: #F1F0EC; --none: #55524C;
-    --display: "Space Grotesk", system-ui, sans-serif;
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, system-ui, sans-serif; line-height: 1.45; }
-  a { color: var(--ink); }
-  button { font: inherit; color: inherit; cursor: pointer; }
-  input { font: inherit; color: var(--ink); min-width: 0; }
-  input::placeholder { color: #76736C; }
-  [hidden] { display: none !important; }
-  .banner { background: var(--ink); color: var(--bg); text-align: center; font-size: 13px; padding: 8px 16px; }
-  .wrap { max-width: 720px; margin: 0 auto; padding: 24px 16px 40px; display: flex; flex-direction: column; gap: 20px; }
-  .brand { font-family: var(--display); font-weight: 700; font-size: 15px; letter-spacing: .02em; }
-  h1 { margin: 8px 0 0; font-family: var(--display); font-size: 32px; line-height: 1.15; }
-  h2 { margin: 0; font-size: 20px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
-  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
-  .chip { font-size: 15px; min-height: 44px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--field); background: var(--card); }
-  .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-  .chips input[type=date] { min-height: 44px; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--field); background: var(--card); }
-  .label { display: flex; flex-direction: column; gap: 6px; font-size: 15px; font-weight: 600; }
-  .numrow { display: flex; gap: 8px; flex-wrap: wrap; }
-  .numrow input { flex: 1 1 200px; font-family: var(--display); font-size: 24px; font-weight: 700; letter-spacing: .04em;
-                  padding: 10px 14px; min-height: 56px; border-radius: 10px; border: 2px solid var(--ink); background: var(--card); }
-  .primary { min-height: 56px; padding: 10px 22px; border-radius: 10px; border: 0; background: var(--ink); color: var(--bg); font-size: 16px; font-weight: 600; }
-  .hint { margin: 0; font-size: 14px; color: var(--muted); }
-  .linkbtn { align-self: flex-start; min-height: 44px; padding: 0; border: 0; background: none; font-size: 14px; font-weight: 600; text-decoration: underline; }
-  .sansnum { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--line); padding-top: 14px; }
-  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
-  .grid2 label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
-  .grid2 input { padding: 10px 12px; min-height: 44px; border-radius: 8px; border: 1px solid var(--field); background: var(--bg); }
-  .row { text-align: left; display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 52px;
-         padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--soft); width: 100%; }
-  .row small { display: block; font-size: 13px; color: var(--muted); }
-  .etat { flex: 0 0 auto; font-family: var(--display); font-weight: 700; font-size: 18px; }
-  .red { color: var(--red); } .amber { color: var(--amber); }
-  .list { display: flex; flex-direction: column; gap: 8px; }
-  .dashed { border-style: dashed; border-color: var(--field); }
-  .dashed ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
-  .prod { font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: #EFECE5; }
-  .tinfo { display: flex; flex-direction: column; gap: 4px; }
-  .tinfo .top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .arret[aria-pressed="true"] { background: var(--card); border: 2px solid var(--ink); }
-  .arret { font-size: 16px; }
-  .verdict { border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-  .verdict.ok { background: var(--ok-bg); } .verdict.auto { background: var(--auto-bg); } .verdict.none { background: var(--none-bg); }
-  .badge { align-self: flex-start; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; color: #fff; }
-  .ok .badge { background: var(--ok); } .auto .badge { background: var(--auto); } .none .badge { background: var(--none); }
-  .vtitre { font-family: var(--display); font-size: 30px; font-weight: 700; line-height: 1.15; }
-  .ok .vtitre { color: var(--ok); } .auto .vtitre { color: var(--auto); }
-  .cta { display: flex; justify-content: center; align-items: center; min-height: 52px; padding: 12px 20px; border-radius: 10px;
-         background: var(--ink); color: var(--bg); font-size: 17px; font-weight: 700; text-decoration: none; }
-  .cta:hover { color: #fff; }
-  .toggle { display: flex; justify-content: space-between; align-items: center; min-height: 52px; padding: 12px 16px; border-radius: 12px;
-            border: 1px solid var(--line); background: var(--card); font-weight: 600; font-size: 16px; width: 100%; }
-  .toggle span:last-child { font-size: 14px; color: var(--muted); font-weight: 500; }
-  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-  .stat { text-align: left; display: flex; flex-direction: column; gap: 2px; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--soft); }
-  .stat[aria-expanded="true"] { background: var(--card); border: 2px solid var(--ink); }
-  .stat b { font-family: var(--display); font-size: 26px; line-height: 1.1; }
-  .stat span { font-size: 13px; color: var(--muted); }
-  details { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
-  summary { cursor: pointer; font-weight: 600; }
-  details ul { margin: 10px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; }
-  footer { color: var(--muted); font-size: 12px; padding-top: 8px; }
+  .form-num { display: flex; gap: 8px; flex-wrap: wrap; }
+  .form-num input { flex: 1 1 180px; height: 60px; padding: 0 14px; border: 2px solid var(--ink); border-radius: var(--r);
+                    background: var(--paper); font-family: var(--mono); font-size: 26px; font-weight: 700; letter-spacing: .04em; }
+  .form-num input::placeholder { color: #82868C; font-weight: 500; }
+  .form-num .btn { flex: 0 0 auto; height: 60px; padding: 0 22px; font-size: 17px; }
+  .bloc { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+  .bloc .seg { justify-self: start; }
+  .form-num input { width: 100%; }
+  .resume { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: nowrap;
+            background: var(--paper); border-radius: var(--r); padding: 10px 10px 10px 14px; margin-top: 20px; box-shadow: 0 1px 2px rgba(30,31,36,.08); }
+  .resume .q { font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .resume .btn { min-height: 44px; font-size: 15px; flex: none; }
+  .sansnum { display: grid; gap: 12px; padding-top: 14px; border-top: 1.5px dashed var(--rule); }
+  .grille2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .entete-train { margin: 28px 0 0; }
+  .entete-train p { margin: 4px 0 0; color: var(--ink-2); }
+  .arrets { margin-top: 18px; }
+  .arrets .aide-champ { margin: 4px 0 12px; }
+  .arret { grid-template-columns: 1fr 112px; }
+  .arret .paliers { grid-column: 2; margin: 4px 0 0; }
+  .arret .r { grid-row: 1; }
+  .introuvable { background: var(--paper); border-radius: var(--r); padding: 18px; margin-top: 20px; }
+  .introuvable ul { margin: 10px 0 14px; padding-left: 20px; display: grid; gap: 4px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
 </style>
 </head>
 <body>
-<div class="banner">Maquette — données fictives. Essayez les n° 6611, 7815, 17742, 3621, 4756 (aujourd'hui) ou 6203 (hier).</div>
-<div class="wrap">
-  <header>
-    <div class="brand">traintracker</div>
-    <h1>Train en retard ou supprimé ? Vérifiez votre droit à un remboursement.</h1>
-  </header>
+<div class="badge-maquette">Maquette — données fictives. Essaie 6611 (deux jours), 7815, 17742, 3115, 4756, 6203.</div>
+<header class="top"><div class="in">
+  <a class="marque" href="site.html">traintracker</a>
+  <nav aria-label="Principale"><a href="site.html" aria-current="page">Mon train</a><a href="aujourdhui.html">Aujourd'hui</a><a href="#aide">Aide</a></nav>
+</div></header>
 
-  <section class="card" aria-label="Trouver mon train">
-    <div class="chips" role="group" aria-label="Date du voyage">
-      <button type="button" class="chip" data-jour="today" aria-pressed="true">Aujourd'hui</button>
-      <button type="button" class="chip" data-jour="hier" aria-pressed="false">Hier</button>
-      <button type="button" class="chip" data-jour="autre" aria-pressed="false">Autre date</button>
-      <input type="date" id="date-autre" aria-label="Date du voyage" hidden>
-    </div>
-    <label class="label" for="num">Numéro de votre train</label>
-    <div class="numrow">
-      <input id="num" inputmode="numeric" placeholder="ex. 6611" autocomplete="off">
-      <button type="button" class="primary" id="chercher">Voir mon train</button>
-    </div>
-    <p class="hint">Il figure sur votre billet ou votre e-billet, à côté de l'heure de départ.</p>
-    <button type="button" class="linkbtn" id="btn-sansnum" aria-expanded="false" aria-controls="sansnum">Je n'ai pas mon numéro de train</button>
-    <div class="sansnum" id="sansnum" hidden>
-      <div class="grid2">
-        <label style="font-weight:600">Gare où vous êtes descendu<input id="arr" placeholder="ex. Marseille"></label>
-        <label style="color:var(--muted)">Gare de départ (facultatif)<input id="dep" placeholder="ex. Paris"></label>
+<main class="page">
+  <section id="recherche" aria-labelledby="titre">
+    <h1 id="titre">Ton train était en retard&nbsp;? Vérifie ce que tu peux récupérer.</h1>
+    <p class="chapo">On calcule ton droit à la gare où tu es descendu, avec la règle de ton train.</p>
+    <form id="form" class="bloc" novalidate>
+      <div class="seg" role="group" aria-label="Date du voyage">
+        <button type="button" data-date="48h" aria-pressed="true">Aujourd'hui ou hier</button>
+        <button type="button" data-date="autre" aria-pressed="false">Autre date</button>
       </div>
-      <div class="list" id="trouves"></div>
-      <p class="hint" id="rien" hidden>Aucun train en retard ou supprimé ne correspond pour cette date.</p>
+      <label class="champ" id="champ-date" hidden>Date du voyage<input type="date" id="date" max="2026-11-08"></label>
+      <div class="champ">
+        <label for="num">Numéro de ton train</label>
+        <div class="form-num">
+          <input id="num" name="train" inputmode="numeric" autocomplete="off" placeholder="6611" aria-describedby="num-aide">
+          <button class="btn" type="submit">Vérifier</button>
+        </div>
+        <p class="aide-champ" id="num-aide">Sur ton billet ou ton e-billet, à côté de l'heure de départ.</p>
+      </div>
+    </form>
+    <button type="button" class="lien" id="btn-sansnum" aria-expanded="false" aria-controls="sansnum">Je n'ai pas mon numéro de train</button>
+    <div class="sansnum" id="sansnum" hidden>
+      <div class="grille2">
+        <label class="champ">Gare où tu es descendu<input id="arr" placeholder="Marseille" autocomplete="off"></label>
+        <label class="champ">Gare de départ (facultatif)<input id="dep" placeholder="Paris" autocomplete="off"></label>
+      </div>
+      <ul class="liste" id="trouves"></ul>
+      <p class="aide-champ" id="rien" hidden>Aucun train en retard ou supprimé ne correspond, aujourd'hui ou hier.</p>
     </div>
   </section>
 
-  <section class="card dashed" id="introuvable" aria-live="polite" hidden>
-    <h2>Nous n'avons pas trouvé ce train en retard</h2>
+  <div class="resume" id="resume" hidden>
+    <span class="q" id="resume-txt"></span>
+    <button type="button" class="btn btn-2" id="modifier">Modifier</button>
+  </div>
+
+  <section id="choix" hidden aria-labelledby="choix-titre">
+    <h2 id="choix-titre" class="entete-train" tabindex="-1">Ce numéro a roulé deux jours. Lequel&nbsp;?</h2>
+    <ul class="liste" id="choix-liste" style="margin-top:12px"></ul>
+  </section>
+
+  <section class="introuvable" id="introuvable" hidden aria-labelledby="intro-titre">
+    <h2 id="intro-titre" tabindex="-1">On ne trouve pas ce train en retard</h2>
     <ul>
-      <li>Il était peut-être <b>à l'heure</b> ou avec moins de 5 min de retard ce jour-là.</li>
-      <li>Vérifiez le numéro et la date du voyage.</li>
+      <li>Il était peut-être <b>à l'heure</b> ce jour-là.</li>
+      <li>Vérifie le numéro : 4 à 6 chiffres, sur ton billet.</li>
       <li>Les RER, métros et Transilien ne sont pas suivis ; Eurostar et Renfe pas encore.</li>
     </ul>
-  </section>
-
-  <section class="card" id="fiche" aria-live="polite" hidden></section>
-
-  <section style="display:flex;flex-direction:column;gap:10px">
-    <button type="button" class="toggle" id="btn-reseau" aria-expanded="false" aria-controls="reseau">
-      <span>Aujourd'hui sur le réseau</span><span id="resume"></span>
-    </button>
-    <div id="reseau" style="display:flex;flex-direction:column;gap:10px" hidden>
-      <div class="stats" id="stats"></div>
-      <div class="list" id="liste-reseau"></div>
+    <div class="actions">
+      <button type="button" class="btn btn-2" id="autre-date">Chercher à une autre date</button>
+      <button type="button" class="btn btn-2" id="vers-sansnum">Chercher par gare</button>
     </div>
   </section>
 
-  <details>
-    <summary>Comment sont calculés les droits ?</summary>
+  <section id="fiche" hidden>
+    <div class="entete-train">
+      <h2 id="f-titre" tabindex="-1"></h2>
+      <p id="f-route"></p>
+    </div>
+    <div class="arrets" id="arrets">
+      <h2>Où es-tu descendu&nbsp;?</h2>
+      <p class="aide-champ">Ton droit dépend du retard à ta gare, pas au terminus.</p>
+      <ul class="liste" id="arrets-liste"></ul>
+    </div>
+    <div id="verdict" hidden>
+      <div class="fente" aria-hidden="true"></div>
+      <div class="recu-zone"><article class="recu" id="recu" aria-labelledby="v-titre"></article></div>
+    </div>
+  </section>
+
+  <details class="aide" id="aide">
+    <summary>Comment on calcule ton droit</summary>
     <ul>
-      <li><b>TGV INOUI, Intercités</b> (garantie G30) : dès 30 min, 25 % du billet ; 50 % dès 2 h ; 75 % dès 3 h.</li>
-      <li><b>OUIGO</b> : dès 1 h, 25 % ; 50 % dès 2 h. <b>Automatique</b> : OUIGO vous écrit, rien à faire.</li>
-      <li><b>TER</b> : dépend de la région. Pas de remboursement par train dans la plupart des régions.</li>
-      <li>Les montants dépendent du prix de votre billet : nous affichons des pourcentages.</li>
-      <li>Train supprimé : vous pouvez demander le remboursement intégral de votre billet.</li>
-      <li>Correspondance avec un billet unique : c'est le retard à votre destination finale qui compte.</li>
+      <li><b>TGV INOUI, Intercités</b> (garantie G30) : dès 30 min, 25 % du billet ; 50 % dès 2 h ; 75 % dès 3 h. Bon d'achat sous 1 h de retard, virement au-delà.</li>
+      <li><b>OUIGO</b> : dès 1 h, 25 % ; 50 % dès 2 h. Automatique : OUIGO t'écrit.</li>
+      <li><b>TER</b> : ça dépend de la région. La plupart ne dédommagent pas un billet à l'unité.</li>
+      <li>On affiche des pourcentages : le montant dépend du prix que tu as payé.</li>
+      <li>Train supprimé : tu peux demander le remboursement intégral de ton billet.</li>
     </ul>
   </details>
+  <p class="pied">Données SNCF Voyageurs en open data (ODbL), via transport.data.gouv.fr. Site indépendant, sans lien avec la SNCF.
+    On ne fait pas la demande à ta place et on ne collecte aucune donnée personnelle.</p>
+</main>
 
-  <footer>Données : SNCF Voyageurs, open data (ODbL) via transport.data.gouv.fr. Site indépendant, non affilié à la SNCF.
-    Nous ne faisons pas la demande à votre place et ne collectons aucune donnée personnelle.</footer>
-</div>
-
+<script src="donnees.js"></script>
 <script>
-// Données FICTIVES (numéros, gares, retards et causes inventés pour la maquette).
-const TRAINS = [
-  { jour: "today", prod: "TGV INOUI", num: "6611", h: "08:07", cause: "Panne de signalisation", regle: "g30",
-    gares: [["Paris Gare de Lyon", 0], ["Avignon TGV", 52], ["Aix-en-Provence TGV", 68], ["Marseille Saint-Charles", 74]] },
-  { jour: "today", prod: "OUIGO", num: "7815", h: "09:42", cause: "Obstacle sur la voie", regle: "ouigo",
-    gares: [["Marne-la-Vallée", 0], ["Lyon Saint-Exupéry", 55], ["Nîmes Pont-du-Gard", 118], ["Montpellier Sud de France", 128]] },
-  { jour: "today", prod: "TER", num: "17742", h: "07:15", cause: "Difficultés lors de la préparation du train", regle: "ter-none", region: "Auvergne-Rhône-Alpes",
-    gares: [["Lyon Part-Dieu", 0], ["Bourgoin-Jallieu", 38], ["Grenoble", 41]] },
-  { jour: "today", prod: "Intercités", num: "3621", h: "10:01", cause: "Ralentissement : travaux", regle: "g30",
-    gares: [["Paris Austerlitz", 0], ["Orléans", 12], ["Limoges-Bénédictins", 28], ["Brive-la-Gaillarde", 33]] },
-  { jour: "today", prod: "TER", num: "860107", h: "11:20", cause: "Panne de matériel", regle: "ter-krono", region: "Normandie",
-    gares: [["Paris Saint-Lazare", 0], ["Mantes-la-Jolie", 22], ["Rouen Rive Droite", 36]] },
-  { jour: "today", prod: "Intercités", num: "4756", h: "07:20", cause: "Mouvement social", regle: "g30", supprime: true,
-    gares: [["Bordeaux Saint-Jean", 0], ["Toulouse Matabiau", 0], ["Montpellier Saint-Roch", 0], ["Marseille Saint-Charles", 0]] },
-  { jour: "today", prod: "TGV INOUI", num: "8521", h: "12:05", cause: "Affluence de voyageurs", regle: "g30",
-    gares: [["Paris Montparnasse", 0], ["Le Mans", 15], ["Rennes", 18]] },
-  { jour: "today", prod: "Lyria", num: "9765", h: "13:10", cause: "Panne d'un aiguillage", regle: "g30-int",
-    gares: [["Paris Gare de Lyon", 0], ["Bellegarde", 47], ["Genève", 52]] },
-  { jour: "hier", prod: "TGV INOUI", num: "6203", h: "18:52", cause: "Accident de personne", regle: "g30",
-    gares: [["Paris Montparnasse", 0], ["Poitiers", 121], ["Angoulême", 128], ["Bordeaux Saint-Jean", 135]] },
-];
-const BADGE = { ok: "Droit ouvert", auto: "Automatique", none: "Pas de droit" };
-
-const palier = (r, paliers) => paliers.reduce((p, [s, v]) => (r >= s ? v : p), null);
-
-// Reflet simplifié de backend/regles.py pour la maquette (le site appellera l'API).
-function droit(t, r) {
-  if (t.supprime) return { ton: "ok", titre: "Oui : remboursement intégral", detail: "Votre train a été supprimé.",
-    texte: "Vous pouvez demander le remboursement de votre billet. Si vous avez pris un autre train, votre droit dépend de votre retard à l'arrivée.", lien: "Faire ma demande" };
-  if (t.regle === "g30" || t.regle === "g30-int") {
-    if (r < 30) return { ton: "none", titre: "Non, pas de dédommagement", detail: "Moins de 30 min de retard à votre gare.", texte: "La garantie G30 (TGV INOUI, Intercités) s'applique à partir de 30 min." };
-    const pct = palier(r, t.regle === "g30-int" ? [[30, 25], [120, 50]] : [[30, 25], [120, 50], [180, 75]]);
-    return { ton: "ok", titre: `Oui : ${pct} % du prix de votre billet`, detail: r < 60 ? "Versé en bon d'achat (moins d'1 h de retard)." : "Versé par virement (1 h de retard ou plus).",
-      texte: "Garantie G30. Le montant dépend du prix que vous avez payé.", lien: "Faire ma demande" };
-  }
-  if (t.regle === "ouigo") {
-    if (r < 60) return { ton: "none", titre: "Non, pas de dédommagement", detail: "Moins d'1 h de retard à votre gare.", texte: "OUIGO dédommage à partir de 1 h de retard." };
-    return { ton: "auto", titre: `Oui : ${palier(r, [[60, 25], [120, 50]])} %, versé automatiquement`, detail: "Rien à faire : OUIGO vous envoie un e-mail.", texte: "Pas reçu sous 15 jours ? Contactez OUIGO.", lien: "Contacter OUIGO" };
-  }
-  if (t.regle === "ter-krono") {
-    if (r < 30) return { ton: "none", titre: "Non, pas de dédommagement", detail: "Moins de 30 min de retard à votre gare.", texte: "Train à réservation Krono+ (TER Normandie) : dédommagement à partir de 30 min." };
-    return { ton: "ok", titre: `Oui : ${palier(r, [[30, 25], [120, 50], [180, 75]])} % du prix de votre billet`, detail: "Versé en bon voyage numérique.", texte: "Train à réservation Krono+ (TER Normandie). Demande sous 30 jours.", lien: "Faire ma demande" };
-  }
-  return { ton: "none", titre: "Non, pas de remboursement par train", detail: `TER ${t.region}.`,
-    texte: "Pour un billet à l'unité, la région ne prévoit pas de dédommagement par train. Abonné ? Une compensation mensuelle existe peut-être.", lien: "Voir la garantie de la région" };
-}
-
+"use strict";
 const $ = (id) => document.getElementById(id);
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const norm = (s) => (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-const retardMax = (t) => t.gares[t.gares.length - 1][1];
-const route = (t) => `${t.gares[0][0]} → ${t.gares[t.gares.length - 1][0]}`;
-const cls = (r, supprime) => (supprime || r >= 30 ? "red" : "amber");
+const etat = { mode: "48h", train: null, arret: null };
 
-const etat = { jour: "today", train: null, arret: null, cherche: false, vue: null };
-
-function ligne(t) {
-  const b = document.createElement("button");
-  b.type = "button"; b.className = "row";
-  b.innerHTML = `<span><b>${esc(t.prod)} n° ${esc(t.num)}</b><small>${esc(route(t))} · départ ${esc(t.h)}</small></span>
-    <span class="etat ${cls(retardMax(t), t.supprime)}">${t.supprime ? "Supprimé" : "+" + retardMax(t) + " min"}</span>`;
-  b.addEventListener("click", () => {
-    Object.assign(etat, { jour: t.jour, train: t, arret: null, cherche: true });
-    $("num").value = t.num;
-    rendre();
-    $("fiche").scrollIntoView({ behavior: "smooth", block: "start" });
-  });
-  return b;
+function majURL() {
+  const p = new URLSearchParams();
+  if (etat.train) {
+    p.set("train", etat.train.num); p.set("date", etat.train.date);
+    if (etat.arret !== null) p.set("gare", etat.train.gares[etat.arret + 1][0]);
+  }
+  history.replaceState(null, "", p.toString() ? "?" + p : location.pathname);
 }
 
-function rendreFiche() {
-  const t = etat.train, f = $("fiche");
-  $("introuvable").hidden = !(etat.cherche && !t);
-  f.hidden = !t;
-  if (!t) return;
-  let html = `<div class="tinfo"><div class="top"><span class="prod">${esc(t.prod)}</span><b style="font-size:18px">n° ${esc(t.num)}</b>
-      <span class="hint">${t.jour === "hier" ? "hier" : "aujourd'hui"}</span></div>
-      <div>${esc(route(t))} · départ ${esc(t.h)}</div><div class="hint">Cause annoncée : ${esc(t.cause)}</div></div>`;
-  if (!t.supprime && etat.arret === null) {
-    html += `<div style="display:flex;flex-direction:column;gap:10px"><h2>Où êtes-vous descendu ?</h2>
-      <p class="hint">Votre droit dépend du retard à votre gare, pas au terminus.</p><div class="list">` +
-      t.gares.slice(1).map(([g, r], i) => `<button type="button" class="row arret" data-i="${i}" aria-pressed="false">
-        <span>${esc(g)}</span><span class="etat ${cls(r)}" style="font-size:16px">+${r} min</span></button>`).join("") + `</div></div>`;
-  } else {
-    const g = t.supprime ? null : t.gares[etat.arret + 1];
-    const d = droit(t, g ? g[1] : 0);
-    const constat = g ? `Retard constaté à ${g[0]} : +${g[1]} min.` : `Prévu à ${t.h} au départ de ${t.gares[0][0]}.`;
-    html += `<div class="verdict ${d.ton}"><span class="badge">${BADGE[d.ton]}</span><div class="vtitre">${esc(d.titre)}</div>
-      <div style="font-size:16px;font-weight:600">${esc(d.detail)}</div><div>${esc(d.texte)}</div>
-      <div class="hint" style="color:#3F3D39">${esc(constat)}</div>` +
-      (d.lien ? `<a class="cta" href="#">${esc(d.lien)} →</a>` : "") +
-      (d.ton === "ok" ? `<div class="hint" style="color:#3F3D39">À préparer : la référence de votre billet (e-mail de confirmation ou billet).</div>` : "") +
-      (!t.supprime ? `<button type="button" class="linkbtn" id="changer">Changer de gare d'arrivée</button>` : "") + `</div>`;
+function setMode(mode) {
+  etat.mode = mode;
+  document.querySelectorAll("[data-date]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.date === mode));
+  $("champ-date").hidden = mode !== "autre";
+}
+
+function ligneTrain(t, onClick) {
+  const li = document.createElement("li");
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "ligne";
+  const r = retardMax(t);
+  b.innerHTML = `<span class="t">${esc(t.prod)} <span class="num">${esc(t.num)}</span> · ${esc(jourLabel(t.date))}</span>
+    <span class="s">${esc(route(t))} · départ ${esc(t.h)}</span>
+    <span class="r ${t.supprime || r >= 30 ? "alerte" : "attente"}">${t.supprime ? "Supprimé" : "+" + r + " min"}</span>`;
+  b.addEventListener("click", onClick);
+  li.appendChild(b);
+  return li;
+}
+
+function cacherTout() { ["choix", "introuvable", "fiche", "resume"].forEach((id) => ($(id).hidden = true)); }
+
+function replier(texte) {
+  $("recherche").hidden = true;
+  $("resume").hidden = false;
+  $("resume-txt").textContent = texte;
+}
+
+function ouvrirTrain(t, arret = null) {
+  cacherTout();
+  etat.train = t; etat.arret = arret;
+  replier(`Train ${t.num} · ${jourLabel(t.date)}`);
+  $("fiche").hidden = false;
+  $("f-titre").textContent = `${t.prod} ${t.num}`;
+  $("f-route").textContent = `${route(t)}, ${jourLabel(t.date)}, départ ${t.h}. Cause annoncée : ${t.cause}.`;
+  if (t.supprime || arret !== null) { $("arrets").hidden = true; montrerVerdict(); }
+  else { $("arrets").hidden = false; rendreArrets(); $("verdict").hidden = true; }
+  majURL();
+  $("f-titre").focus({ preventScroll: true });
+  $("fiche").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+}
+
+function rendreArrets() {
+  const ul = $("arrets-liste"); ul.replaceChildren();
+  etat.train.gares.slice(1).forEach(([g, r], i) => {
+    const li = document.createElement("li");
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "ligne arret";
+    b.setAttribute("aria-pressed", etat.arret === i);
+    if (etat.arret === i) b.style.boxShadow = "0 0 0 2px var(--ink)";
+    const n = indexPalier(r);
+    b.innerHTML = `<span class="t">${esc(g)}</span><span class="r ${r >= 30 ? "alerte" : "attente"}">+${r} min</span>
+      <span class="paliers ${r >= 30 ? "alerte" : ""}" aria-hidden="true">${[0, 1, 2, 3, 4].map((k) => `<i class="${k <= n ? "on" : ""}"></i>`).join("")}</span>`;
+    b.addEventListener("click", () => { etat.arret = i; $("arrets").hidden = true; montrerVerdict(true); majURL(); });
+    li.appendChild(b); ul.appendChild(li);
+  });
+}
+
+function montrerVerdict(cadrer = false) {
+  const t = etat.train;
+  const g = t.supprime ? null : t.gares[etat.arret + 1];
+  const r = g ? g[1] : 0;
+  const d = droit(t, r);
+  const recu = $("recu");
+  recu.className = "recu" + (d.ton === "none" ? "" : " droit-ok");
+  const n = indexPalier(r);
+  recu.innerHTML = `
+    <p class="recu-titre">Ton verdict</p>
+    <hr class="pointille">
+    <dl class="lignes">
+      <div><dt>Train</dt><dd>${esc(t.prod)} ${esc(t.num)}</dd></div>
+      <div><dt>Date</dt><dd>${esc(jourLabel(t.date))} · ${esc(t.h)}</dd></div>
+      ${g ? `<div><dt>Descendu à</dt><dd>${esc(g[0])}</dd></div><div><dt>Retard constaté</dt><dd>+${r} min</dd></div>`
+          : `<div><dt>État</dt><dd>Supprimé</dd></div>`}
+    </dl>
+    ${g ? `<div class="paliers ${r >= 30 ? "alerte" : ""}" aria-hidden="true">${[0, 1, 2, 3, 4].map((k) => `<i class="${k <= n ? "on" : ""}"></i>`).join("")}</div>
+      <div class="paliers-legende" aria-hidden="true"><span>0</span><span>30</span><span>60</span><span>120</span><span>180</span></div>` : ""}
+    <hr class="pointille">
+    <dl class="lignes"><div><dt>Statut</dt><dd>${esc(d.tampon)}</dd></div></dl>
+    <h2 class="verdict-titre" id="v-titre" tabindex="-1">${esc(d.titre)}</h2>
+    <p class="verdict-texte">${esc(d.texte)}</p>
+    ${d.pct ? `<p class="exemple">${exemple(d.pct)} Le montant dépend du prix que tu as payé.</p>` : ""}
+    <dl class="lignes">
+      ${d.forme ? `<div><dt>Forme</dt><dd>${esc(d.forme)}</dd></div>` : ""}
+      <div><dt>Règle</dt><dd>${esc(d.regle)}</dd></div>
+    </dl>
+    ${d.g30 ? `<p class="exemple" style="margin-top:8px">${esc(d.g30)}</p>` : ""}
+    ${d.lien ? `<a class="btn cta" href="${d.lien[1]}" target="_blank" rel="noopener">${libelleExt(d.lien[0])}</a>
+      <p class="sortie-note">Tu quittes le site : on ne transmet rien.</p>` : ""}
+    ${d.suite ? `<hr class="pointille"><div class="suite"><h3>Et maintenant&nbsp;?</h3><ul>${d.suite.map((s, k) => `<li><p>${esc(s.texte)}</p>${
+      s.lien ? `<a class="btn btn-2" href="${s.lien}" target="_blank" rel="noopener">${libelleExt(s.action)}</a>`
+             : `<button type="button" class="btn btn-2" data-suite="${k}">${esc(s.action)}</button>`}</li>`).join("")}</ul></div>` : ""}
+    ${g ? `<button type="button" class="lien" id="changer">Changer de gare</button>` : ""}`;
+  $("verdict").hidden = false;
+  recu.classList.remove("sort"); void recu.offsetWidth; recu.classList.add("sort");
+  recu.querySelectorAll("[data-suite]").forEach((b) => b.addEventListener("click", rouvrirRecherche));
+  const c = $("changer"); if (c) c.addEventListener("click", () => { etat.arret = null; $("verdict").hidden = true; $("arrets").hidden = false; rendreArrets(); majURL(); $("arrets").scrollIntoView({ block: "start" }); $("arrets").querySelector("button").focus({ preventScroll: true }); });
+  if (cadrer) {
+    $("verdict").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    $("v-titre").focus({ preventScroll: true });
   }
-  f.innerHTML = html;
-  f.querySelectorAll(".arret").forEach((b) => b.addEventListener("click", () => { etat.arret = +b.dataset.i; rendre(); }));
-  const c = $("changer"); if (c) c.addEventListener("click", () => { etat.arret = null; rendre(); });
+}
+
+function chercher(num, date) {
+  num = (num || "").replace(/\D/g, "");
+  $("num").value = num;
+  if (!num) { $("num").focus(); return; }
+  let res;
+  if (date) res = TRAINS.filter((t) => t.num === num && t.date === date);
+  else if (etat.mode === "autre") res = TRAINS.filter((t) => t.num === num && t.date === $("date").value);
+  else res = TRAINS.filter((t) => t.num === num && (t.date === AUJOURDHUI || t.date === HIER));
+  cacherTout();
+  if (res.length === 1) return ouvrirTrain(res[0]);
+  if (res.length > 1) {
+    replier(`Train ${num}`);
+    const ul = $("choix-liste"); ul.replaceChildren();
+    res.forEach((t) => ul.appendChild(ligneTrain(t, () => ouvrirTrain(t))));
+    $("choix").hidden = false; $("choix-titre").focus();
+    return;
+  }
+  replier(`${num} · ${etat.mode === "autre" ? ($("date").value || "date à choisir") : "aujourd'hui ou hier"}`);
+  $("introuvable").hidden = false; $("intro-titre").focus();
+}
+
+function rouvrirRecherche() {
+  cacherTout(); etat.train = null; etat.arret = null; majURL();
+  $("recherche").hidden = false; $("num").focus(); $("num").select();
 }
 
 function rendreSansNum() {
-  const arr = $("arr").value.trim(), dep = $("dep").value.trim(), box = $("trouves");
-  box.replaceChildren();
+  const arr = $("arr").value.trim(), dep = $("dep").value.trim(), ul = $("trouves");
+  ul.replaceChildren();
   if (!arr && !dep) { $("rien").hidden = true; return; }
-  const l = TRAINS.filter((t) => t.jour === etat.jour
+  const l = TRAINS.filter((t) => (t.date === AUJOURDHUI || t.date === HIER)
     && (!arr || t.gares.slice(1).some(([g]) => norm(g).includes(norm(arr))))
     && (!dep || norm(t.gares[0][0]).includes(norm(dep))));
-  l.forEach((t) => box.appendChild(ligne(t)));
+  l.forEach((t) => ul.appendChild(ligneTrain(t, () => {
+    const i = arr ? t.gares.slice(1).findIndex(([g]) => norm(g).includes(norm(arr))) : -1;
+    ouvrirTrain(t, i >= 0 && !t.supprime ? i : null);
+  })));
   $("rien").hidden = l.length > 0;
 }
 
-function rendreReseau() {
-  const jour = TRAINS.filter((t) => t.jour === "today");
-  const defs = [
-    ["eligible", "ouvrent droit", "var(--ok)", (t) => droit(t, retardMax(t)).ton !== "none"],
-    ["suppr", "supprimés", "var(--red)", (t) => t.supprime],
-    ["retard", "en retard", "var(--ink)", (t) => !t.supprime],
-  ];
-  $("resume").textContent = `${jour.filter(defs[0][3]).length} trains ouvrent droit`;
-  const stats = $("stats"); stats.replaceChildren();
-  const liste = $("liste-reseau"); liste.replaceChildren();
-  defs.forEach(([id, label, couleur, f]) => {
-    const b = document.createElement("button");
-    b.type = "button"; b.className = "stat"; b.setAttribute("aria-expanded", etat.vue === id);
-    b.innerHTML = `<b style="color:${couleur}">${jour.filter(f).length}</b><span>${label}</span>`;
-    b.addEventListener("click", () => { etat.vue = etat.vue === id ? null : id; rendreReseau(); });
-    stats.appendChild(b);
-    if (etat.vue === id) jour.filter(f).forEach((t) => liste.appendChild(ligne(t)));
-  });
+function ouvrirSansNum(ouvrir) {
+  $("sansnum").hidden = !ouvrir; $("btn-sansnum").setAttribute("aria-expanded", ouvrir);
+  if (ouvrir) $("arr").focus();
 }
 
-function rendre() {
-  document.querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", c.dataset.jour === etat.jour));
-  $("date-autre").hidden = etat.jour !== "autre";
-  rendreFiche();
-  rendreSansNum();
-}
-
-document.querySelectorAll(".chip").forEach((c) => c.addEventListener("click", () => {
-  Object.assign(etat, { jour: c.dataset.jour, train: null, arret: null, cherche: false });
-  rendre();
-}));
-function chercher() {
-  const n = $("num").value.trim();
-  Object.assign(etat, { train: TRAINS.find((t) => t.num === n && t.jour === etat.jour) || null, arret: null, cherche: true });
-  rendre();
-}
-$("chercher").addEventListener("click", chercher);
-$("num").addEventListener("keydown", (e) => { if (e.key === "Enter") chercher(); });
-$("btn-sansnum").addEventListener("click", (e) => {
-  const ouvert = $("sansnum").hidden;
-  $("sansnum").hidden = !ouvert; e.currentTarget.setAttribute("aria-expanded", ouvert);
-});
+document.querySelectorAll("[data-date]").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.date)));
+$("form").addEventListener("submit", (e) => { e.preventDefault(); chercher($("num").value); });
+$("modifier").addEventListener("click", rouvrirRecherche);
+$("btn-sansnum").addEventListener("click", () => ouvrirSansNum($("sansnum").hidden));
 $("arr").addEventListener("input", rendreSansNum);
 $("dep").addEventListener("input", rendreSansNum);
-$("btn-reseau").addEventListener("click", (e) => {
-  const ouvert = $("reseau").hidden;
-  $("reseau").hidden = !ouvert; e.currentTarget.setAttribute("aria-expanded", ouvert);
-});
-rendre();
-rendreReseau();
+$("autre-date").addEventListener("click", () => { rouvrirRecherche(); setMode("autre"); $("date").focus(); });
+$("vers-sansnum").addEventListener("click", () => { rouvrirRecherche(); ouvrirSansNum(true); });
+
+// « Aide » ouvre l'explication
+function ouvrirAide() { if (location.hash === "#aide") $("aide").open = true; }
+addEventListener("hashchange", ouvrirAide); ouvrirAide();
+
+// Lien partageable : ?train=6611&date=2026-11-08&gare=Avignon%20TGV
+(function depuisURL() {
+  const p = new URLSearchParams(location.search);
+  if (!p.get("train")) return;
+  const t = TRAINS.find((x) => x.num === p.get("train") && x.date === p.get("date"));
+  if (!t) return chercher(p.get("train"));
+  const i = p.get("gare") ? t.gares.slice(1).findIndex(([g]) => g === p.get("gare")) : -1;
+  ouvrirTrain(t, i >= 0 ? i : null);
+})();
 </script>
 </body>
 </html>

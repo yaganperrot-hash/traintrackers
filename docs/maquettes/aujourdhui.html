@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aujourd'hui sur le réseau — maquette</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .bilan .lignes { font-size: 15px; gap: 6px; }
+  .bilan .lignes dd b { font-size: 22px; }
+  .bilan .droit dd { color: var(--droit); }
+  .bilan .alerte dd { color: var(--alerte); }
+  .onglets { margin: 28px auto 0; max-width: 460px; }
+  .vide { padding: 8px 0; margin: 0; }
+  .recu.pile-recu { padding-top: 8px; }
+  .absent { max-width: 460px; margin: 20px auto 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+</style>
+</head>
+<body>
+<div class="badge-maquette">Maquette — données fictives.</div>
+<header class="top"><div class="in">
+  <a class="marque" href="site.html">traintracker</a>
+  <nav aria-label="Principale"><a href="site.html">Mon train</a><a href="aujourdhui.html" aria-current="page">Aujourd'hui</a><a href="site.html#aide">Aide</a></nav>
+</div></header>
+
+<main class="page">
+  <h1>Aujourd'hui sur le réseau</h1>
+  <p class="chapo">Dimanche 8 novembre. Les trains en retard ou supprimés, et ceux qui ouvrent un droit.</p>
+
+  <div class="fente" aria-hidden="true"></div>
+  <div class="recu-zone"><article class="recu sort bilan" aria-labelledby="bilan-titre">
+    <h2 class="recu-titre" id="bilan-titre">Le reçu du jour</h2>
+    <hr class="pointille">
+    <dl class="lignes" id="bilan"></dl>
+    <hr class="pointille">
+    <p class="aide-champ" style="text-align:center">Mis à jour à <span class="num">14:32</span> · relevé toutes les 2 min</p>
+  </article></div>
+
+  <div class="seg plein onglets" role="tablist" aria-label="Filtrer les trains" id="onglets"></div>
+  <div role="tabpanel" id="panneau">
+    <div class="fente" aria-hidden="true"></div>
+    <div class="recu-zone"><div class="recu pile-recu"><ul class="pile" id="liste"></ul></div></div>
+  </div>
+
+  <div class="absent"><span>Ton train n'est pas là ?</span><a class="btn btn-2" href="site.html">Le chercher par son numéro</a></div>
+  <p class="pied">Un train à l'heure n'apparaît pas ici. Les RER, métros et Transilien ne sont pas suivis.
+    Données SNCF Voyageurs en open data (ODbL). Site indépendant, sans lien avec la SNCF.</p>
+</main>
+
+<script src="donnees.js"></script>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const jour = TRAINS.filter((t) => t.date === AUJOURDHUI);
+const ouvre = (t) => droit(t, retardMax(t)).ton !== "none";
+const FILTRES = [
+  { id: "droit", label: "Droit ouvert", f: ouvre, vide: "Aucun train n'ouvre de droit pour l'instant aujourd'hui." },
+  { id: "suppr", label: "Supprimés", f: (t) => t.supprime, vide: "Aucun train supprimé pour l'instant aujourd'hui." },
+  { id: "retard", label: "Retard", f: (t) => !t.supprime, vide: "Aucun train en retard pour l'instant." },
+];
+let actif = new URLSearchParams(location.search).get("filtre") || "droit";
+
+const pire = jour.filter((t) => !t.supprime).sort((a, b) => retardMax(b) - retardMax(a))[0];
+$("bilan").innerHTML = `
+  <div class="droit"><dt>Ouvrent un droit</dt><dd><b>${jour.filter(ouvre).length}</b></dd></div>
+  <div class="alerte"><dt>Supprimés</dt><dd><b>${jour.filter((t) => t.supprime).length}</b></dd></div>
+  <div><dt>En retard</dt><dd><b>${jour.filter((t) => !t.supprime).length}</b></dd></div>
+  ${pire ? `<div><dt>Plus gros retard</dt><dd>+${retardMax(pire)} min · ${esc(pire.prod)} ${esc(pire.num)}</dd></div>` : ""}`;
+
+function rendre() {
+  const tabs = $("onglets"); tabs.replaceChildren();
+  FILTRES.forEach((F) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.setAttribute("role", "tab"); b.id = "tab-" + F.id;
+    b.setAttribute("aria-selected", F.id === actif); b.setAttribute("aria-controls", "panneau");
+    b.tabIndex = F.id === actif ? 0 : -1;
+    b.textContent = `${F.label} (${jour.filter(F.f).length})`;
+    b.addEventListener("click", () => { actif = F.id; history.replaceState(null, "", "?filtre=" + actif); rendre(); });
+    b.addEventListener("keydown", (e) => {
+      const i = FILTRES.findIndex((x) => x.id === actif);
+      if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+        actif = FILTRES[(i + (e.key === "ArrowRight" ? 1 : FILTRES.length - 1)) % FILTRES.length].id;
+        rendre(); $("tab-" + actif).focus();
+      }
+    });
+    tabs.appendChild(b);
+  });
+  $("panneau").setAttribute("aria-labelledby", "tab-" + actif);
+  const F = FILTRES.find((x) => x.id === actif);
+  const l = jour.filter(F.f).sort((a, b) => (b.supprime - a.supprime) || retardMax(b) - retardMax(a));
+  const ul = $("liste"); ul.replaceChildren();
+  if (!l.length) { ul.innerHTML = `<li class="vide">${F.vide}</li>`; return; }
+  l.forEach((t) => {
+    const r = retardMax(t), d = droit(t, r);
+    const etat = d.ton === "none" ? `<span class="etat">Pas de droit · ${esc(d.regle)}</span>`
+      : `<span class="etat droit">${d.ton === "auto" ? "Automatique" : "Droit ouvert"}${d.pct ? " · jusqu'à " + d.pct + " %" : ""}</span>`;
+    const n = indexPalier(r);
+    const li = document.createElement("li");
+    li.innerHTML = `<a class="bande" href="site.html?train=${t.num}&date=${t.date}">
+      <span class="l1"><span class="bt">${esc(t.prod)} ${esc(t.num)}</span>
+        <span class="${t.supprime || r >= 30 ? "r alerte" : "r attente"}">${t.supprime ? "Supprimé" : "+" + r + " min"}</span></span>
+      <span class="l2">${esc(route(t))} · ${esc(t.h)}</span>
+      ${t.supprime ? "" : `<span class="paliers ${r >= 30 ? "alerte" : ""}" aria-hidden="true">${[0, 1, 2, 3, 4].map((k) => `<i class="${k <= n ? "on" : ""}"></i>`).join("")}</span>`}
+      ${etat}</a>`;
+    ul.appendChild(li);
+  });
+}
+rendre();
+</script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-08T12:00:00+01:00",
+  "title": "Design System: traintracker",
+  "extensions": {
+    "colorMeta": {
+      "droit":   { "role": "primary", "displayName": "Bleu thermique", "canonical": "#3B3FA8", "tonalRamp": ["#14153D", "#1F2160", "#2C2F86", "#3B3FA8", "#5A5EC4", "#8A8DD8", "#BEC0EA", "#ECEDF8"] },
+      "ink":     { "role": "neutral", "displayName": "Encre", "canonical": "#1E1F24", "tonalRamp": ["#0E0F12", "#1E1F24", "#33353C", "#4A4D55", "#6B6E76", "#9A9EA4", "#C3C7CC", "#E6E8EA"] },
+      "ink-2":   { "role": "neutral", "displayName": "Encre douce", "canonical": "#4A4D55", "tonalRamp": ["#1E1F24", "#33353C", "#4A4D55", "#5F626A", "#7E8189", "#A3A6AD", "#C9CBD0", "#ECEDEF"] },
+      "ground":  { "role": "neutral", "displayName": "Gris papier froid", "canonical": "#E6E8EA", "tonalRamp": ["#2A2C2F", "#4B4E52", "#6E7176", "#94989D", "#B8BCC0", "#D6D9DD", "#E6E8EA", "#F3F4F5"] },
+      "paper":   { "role": "neutral", "displayName": "Papier thermique", "canonical": "#FAFBFC", "tonalRamp": ["#3A3C3F", "#5E6064", "#85888C", "#ABAEB2", "#CDD0D3", "#E6E8EA", "#F2F3F5", "#FAFBFC"] },
+      "rule":    { "role": "neutral", "displayName": "Pointillé", "canonical": "#C3C7CC", "tonalRamp": ["#33363A", "#53575C", "#757A80", "#9A9EA4", "#C3C7CC", "#D8DBDF", "#E8EAEC", "#F5F6F7"] },
+      "line":    { "role": "neutral", "displayName": "Trait", "canonical": "#D8DBDF", "tonalRamp": ["#36393D", "#585C61", "#7C8086", "#A2A6AB", "#C3C7CC", "#D8DBDF", "#E8EAEC", "#F5F6F7"] },
+      "alerte":  { "role": "signal", "displayName": "Rouge alerte", "canonical": "#B3261E", "tonalRamp": ["#3D0C09", "#62140F", "#8A1D16", "#B3261E", "#D2534A", "#E5877F", "#F2BDB8", "#FBEAE8"] },
+      "attente": { "role": "signal", "displayName": "Ambre attente", "canonical": "#8A5300", "tonalRamp": ["#2E1B00", "#4D2E00", "#6B4000", "#8A5300", "#B0761F", "#CF9E55", "#E8CB98", "#F8EEDC"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Titre de page, équilibré." },
+      "verdict": { "displayName": "Verdict", "purpose": "La phrase-réponse dans le reçu ; bleu thermique seulement si un droit est ouvert." },
+      "headline": { "displayName": "Headline", "purpose": "Titres de section et nom du train." },
+      "body": { "displayName": "Body", "purpose": "Texte courant, 60 à 65 ch au plus." },
+      "receipt-header": { "displayName": "En-tête de reçu", "purpose": "Nom du reçu, en capitales centrées, en haut du papier uniquement." },
+      "receipt-line": { "displayName": "Ligne de reçu", "purpose": "Valeurs des paires étiquette / valeur du reçu." },
+      "receipt-label": { "displayName": "Étiquette de reçu", "purpose": "Étiquettes en capitales mono, encre douce." },
+      "figure": { "displayName": "Chiffre", "purpose": "Retards dans les lignes de train ; 22 px pour les compteurs du reçu du jour." },
+      "train-number-input": { "displayName": "Champ du numéro", "purpose": "Saisie du numéro de train." }
+    },
+    "shadows": [
+      { "name": "fente", "value": "0 3px 6px rgba(0,0,0,.25)", "purpose": "Sous la fente encre, pour que le reçu paraisse en sortir." },
+      { "name": "papier-recu", "value": "0 2px 8px rgba(30,31,36,.10)", "purpose": "Le reçu posé sur le bureau." },
+      { "name": "papier-repos", "value": "0 1px 2px rgba(30,31,36,.08)", "purpose": "Lignes de train et résumé de recherche." },
+      { "name": "contour-survol", "value": "0 0 0 1.5px #1E1F24", "purpose": "Survol d'une ligne cliquable ; 2px pour la gare sélectionnée." },
+      { "name": "segment-actif", "value": "0 1px 2px rgba(0,0,0,.12)", "purpose": "Pastille active du sélecteur segmenté." }
+    ],
+    "motion": [
+      { "name": "sortie-recu", "value": "translateY(-100%) -> none, 0.7s cubic-bezier(.16, 1, .3, 1)", "purpose": "Seul mouvement auteur : le reçu glisse hors de la fente. Coupé sous prefers-reduced-motion." }
+    ],
+    "breakpoints": [],
+    "containers": [
+      { "name": "page", "value": "680px" },
+      { "name": "fente", "value": "452px" },
+      { "name": "recu", "value": "460px" }
+    ],
+    "receiptEdge": { "mask": "radial-gradient(circle 6px at 50% 100%, transparent 97%, #000) bottom / 16px 100% repeat-x", "purpose": "Bord cranté du reçu thermique." },
+    "delaySteps": { "thresholdsMinutes": [0, 30, 60, 120, 180], "barHeight": "8px", "gap": "3px", "onBelow30": "ink", "onFrom30": "alerte", "off": "line" },
+    "focus": { "value": "outline: 3px solid; outline-offset: 2px; border-radius: 4px", "note": "Anneau de focus, curseur et sélection à l'encre #1E1F24 ; blanc sur l'en-tête encre." }
+  },
+  "components": [
+    {
+      "name": "Bouton principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Action principale en encre pleine (Vérifier, CTA vers le formulaire officiel).",
+      "html": "<button class=\"ds-btn\">Vérifier</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 18px; border: 0; border-radius: 6px; background: #1E1F24; color: #FAFBFC; font-family: 'Public Sans', system-ui, sans-serif; font-weight: 700; font-size: 16px; cursor: pointer; } .ds-btn:hover { background: #000; } .ds-btn:focus-visible { outline: 3px solid #1E1F24; outline-offset: 2px; }"
+    },
+    {
+      "name": "Bouton secondaire",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Suites et actions de repli (Modifier, Chercher par gare, Et maintenant ?).",
+      "html": "<button class=\"ds-btn-2\">Modifier</button>",
+      "css": ".ds-btn-2 { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 18px; border: 0; border-radius: 6px; background: transparent; color: #1E1F24; box-shadow: inset 0 0 0 1.5px #1E1F24; font-family: 'Public Sans', system-ui, sans-serif; font-weight: 700; font-size: 16px; cursor: pointer; } .ds-btn-2:hover { background: rgba(30,31,36,.06); } .ds-btn-2:focus-visible { outline: 3px solid #1E1F24; outline-offset: 2px; }"
+    },
+    {
+      "name": "Champ du numéro de train",
+      "kind": "input",
+      "refersTo": "input-train-number",
+      "description": "Saisie du numéro de train, en mono, accolée au bouton Vérifier.",
+      "html": "<label class=\"ds-champ\">Numéro de ton train<input class=\"ds-num\" inputmode=\"numeric\" placeholder=\"6611\"></label>",
+      "css": ".ds-champ { display: flex; flex-direction: column; gap: 6px; font-family: 'Public Sans', system-ui, sans-serif; font-weight: 700; font-size: 15px; color: #1E1F24; } .ds-num { height: 60px; padding: 0 14px; border: 2px solid #1E1F24; border-radius: 6px; background: #FAFBFC; color: #1E1F24; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 26px; font-weight: 700; letter-spacing: .04em; } .ds-num::placeholder { color: #82868C; font-weight: 500; } .ds-num:focus-visible { outline: 3px solid #1E1F24; outline-offset: 2px; }"
+    },
+    {
+      "name": "Sélecteur segmenté",
+      "kind": "chip",
+      "refersTo": "segmented",
+      "description": "Choix de date et onglets de filtre.",
+      "html": "<div class=\"ds-seg\"><button aria-pressed=\"true\">Aujourd'hui ou hier</button><button aria-pressed=\"false\">Autre date</button></div>",
+      "css": ".ds-seg { display: inline-flex; padding: 3px; background: #D6D9DD; border-radius: 8px; gap: 2px; } .ds-seg button { border: 0; background: none; min-height: 40px; padding: 0 14px; border-radius: 6px; font-family: 'Public Sans', system-ui, sans-serif; font-size: 15px; font-weight: 600; color: #4A4D55; cursor: pointer; } .ds-seg button[aria-pressed='true'] { background: #FAFBFC; color: #1E1F24; box-shadow: 0 1px 2px rgba(0,0,0,.12); } .ds-seg button:focus-visible { outline: 3px solid #1E1F24; outline-offset: 2px; }"
+    },
+    {
+      "name": "En-tête encre",
+      "kind": "nav",
+      "refersTo": "header",
+      "description": "Bandeau encre avec le nom de travail et trois liens.",
+      "html": "<header class=\"ds-top\"><a class=\"ds-marque\" href=\"#\">traintracker</a><nav><a href=\"#\" aria-current=\"page\">Mon train</a><a href=\"#\">Aujourd'hui</a><a href=\"#\">Aide</a></nav></header>",
+      "css": ".ds-top { background: #1E1F24; color: #FAFBFC; min-height: 56px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-family: 'Public Sans', system-ui, sans-serif; } .ds-marque { font-weight: 800; font-size: 17px; color: inherit; text-decoration: none; } .ds-top nav { display: flex; gap: 4px; } .ds-top nav a { color: #D5D8DC; text-decoration: none; font-size: 15px; padding: 10px; } .ds-top nav a:hover { color: #fff; } .ds-top nav a[aria-current='page'] { color: #fff; box-shadow: inset 0 -2px 0 #fff; } .ds-top a:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }"
+    },
+    {
+      "name": "Ligne de train",
+      "kind": "card",
+      "refersTo": "train-row",
+      "description": "Train cliquable : nom, trajet, retard en chiffre mono à droite.",
+      "html": "<button class=\"ds-ligne\"><span class=\"ds-t\">TGV INOUI 6611 · aujourd'hui</span><span class=\"ds-s\">Paris Gare de Lyon → Marseille Saint-Charles · départ 08:07</span><span class=\"ds-r\">+52 min</span></button>",
+      "css": ".ds-ligne { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: center; width: 100%; text-align: left; min-height: 60px; padding: 10px 14px; border: 0; border-radius: 6px; background: #FAFBFC; color: #1E1F24; box-shadow: 0 1px 2px rgba(30,31,36,.08); font-family: 'Public Sans', system-ui, sans-serif; cursor: pointer; } .ds-ligne:hover { box-shadow: 0 0 0 1.5px #1E1F24; } .ds-ligne:focus-visible { outline: 3px solid #1E1F24; outline-offset: 2px; } .ds-t { font-weight: 700; } .ds-s { grid-column: 1; font-size: 14px; color: #4A4D55; } .ds-r { grid-row: 1 / span 2; grid-column: 2; font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 17px; color: #B3261E; }"
+    },
+    {
+      "name": "Le reçu",
+      "kind": "custom",
+      "refersTo": "receipt",
+      "description": "Signature : fente encre, papier thermique à bord cranté, lignes étiquette / valeur en mono, paliers fixes, verdict.",
+      "html": "<div class=\"ds-fente\"></div><div class=\"ds-zone\"><article class=\"ds-recu\"><p class=\"ds-titre\">Ton verdict</p><hr class=\"ds-pt\"><dl class=\"ds-lignes\"><div><dt>Train</dt><dd>TGV INOUI 6611</dd></div><div><dt>Descendu à</dt><dd>Avignon TGV</dd></div><div><dt>Retard constaté</dt><dd>+52 min</dd></div></dl><div class=\"ds-paliers\"><i class=\"on\"></i><i class=\"on\"></i><i></i><i></i><i></i></div><div class=\"ds-leg\"><span>0</span><span>30</span><span>60</span><span>120</span><span>180</span></div><hr class=\"ds-pt\"><dl class=\"ds-lignes\"><div><dt>Statut</dt><dd>Droit ouvert</dd></div></dl><h2 class=\"ds-verdict\">25 % de ton billet</h2></article></div>",
+      "css": ".ds-fente { height: 12px; border-radius: 6px; background: #1E1F24; margin: 24px auto 0; max-width: 452px; position: relative; z-index: 2; box-shadow: 0 3px 6px rgba(0,0,0,.25); } .ds-zone { overflow: hidden; margin: -6px auto 0; padding: 0 16px 10px; max-width: 460px; } .ds-recu { background: #FAFBFC; color: #1E1F24; padding: 22px 18px 30px; box-shadow: 0 2px 8px rgba(30,31,36,.10); -webkit-mask: radial-gradient(circle 6px at 50% 100%, transparent 97%, #000) bottom / 16px 100% repeat-x; mask: radial-gradient(circle 6px at 50% 100%, transparent 97%, #000) bottom / 16px 100% repeat-x; animation: ds-sortie .7s cubic-bezier(.16, 1, .3, 1) both; font-family: 'Public Sans', system-ui, sans-serif; } @keyframes ds-sortie { from { transform: translateY(-100%); } to { transform: none; } } @media (prefers-reduced-motion: reduce) { .ds-recu { animation: none; } } .ds-titre { font-weight: 800; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; text-align: center; margin: 0; } .ds-pt { border: 0; border-top: 1.5px dashed #C3C7CC; margin: 12px 0; } .ds-lignes { display: grid; gap: 4px; margin: 0; font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 14px; } .ds-lignes div { display: flex; justify-content: space-between; gap: 12px; } .ds-lignes dt { color: #4A4D55; text-transform: uppercase; font-size: 12px; letter-spacing: .04em; padding-top: 2px; } .ds-lignes dd { margin: 0; text-align: right; font-weight: 500; } .ds-paliers { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; margin: 8px 0 2px; } .ds-paliers i { height: 8px; background: #D8DBDF; border-radius: 1px; } .ds-paliers i.on { background: #B3261E; } .ds-leg { display: grid; grid-template-columns: repeat(5, 1fr); font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; color: #4A4D55; } .ds-verdict { font-weight: 800; font-size: clamp(28px, 8vw, 36px); line-height: 1.08; letter-spacing: -0.02em; margin: 8px 0 6px; color: #3B3FA8; }"
+    },
+    {
+      "name": "Bande de la pile",
+      "kind": "custom",
+      "refersTo": "receipt",
+      "description": "Bande de reçu de la page Aujourd'hui, séparée de la suivante par un pointillé.",
+      "html": "<a class=\"ds-bande\" href=\"#\"><span class=\"ds-l1\"><span>OUIGO 7815</span><span class=\"ds-al\">+128 min</span></span><span class=\"ds-l2\">Marne-la-Vallée Chessy → Montpellier Sud de France · 09:42</span><span class=\"ds-pal\"><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i class=\"on\"></i><i></i></span><span class=\"ds-etat\">Automatique · jusqu'à 50 %</span></a>",
+      "css": ".ds-bande { display: block; padding: 12px 18px; background: #FAFBFC; color: #1E1F24; text-decoration: none; border-top: 1.5px dashed #C3C7CC; font-family: 'Public Sans', system-ui, sans-serif; } .ds-bande:hover .ds-l1 span:first-child { text-decoration: underline; } .ds-bande:focus-visible { outline: 3px solid #1E1F24; outline-offset: 2px; } .ds-l1 { display: flex; justify-content: space-between; gap: 12px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 15px; } .ds-al { color: #B3261E; } .ds-l2 { display: block; font-size: 14px; color: #4A4D55; margin-top: 2px; } .ds-pal { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; margin: 8px 0 4px; } .ds-pal i { height: 8px; background: #D8DBDF; border-radius: 1px; } .ds-pal i.on { background: #B3261E; } .ds-etat { display: block; font-size: 13px; font-weight: 700; color: #3B3FA8; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Le reçu",
+    "overview": "Le verdict est un reçu qu'on garde. Train, date, gare de descente, retard, statut : tout s'imprime ligne à ligne sur un papier thermique blanc, à bord cranté, qui sort d'une fente encre. Le reste de l'interface est un bureau gris froid et sobre, sur lequel le reçu est le seul objet qui compte. Le système refuse la carte blanche et le formulaire bleu des services de réclamation : ici, la réponse est un document, pas un écran de saisie.\n\nLa densité est celle d'un ticket de caisse : colonnes étroites (reçu de 460 px au plus), étiquettes en capitales mono à gauche, valeurs alignées à droite, séparateurs en pointillés. Une seule famille sans (Public Sans) porte la voix ; une mono tabulaire (JetBrains Mono) porte les chiffres et les lignes du reçu. La couleur est presque absente : encre, papier, gris. Le seul bleu dit « tu as un droit ».\n\nRejets confirmés par l'utilisateur : ne jamais ressembler à la SNCF (ni ses couleurs, ni ses logos), pas d'allure d'appli bancaire, rien de gadget ni de ludique.",
+    "keyCharacteristics": [
+      "Le reçu thermique à bord cranté, qui sort d'une fente encre, est la signature.",
+      "Bleu thermique réservé au droit ouvert, et à lui seul.",
+      "Mono tabulaire pour chaque chiffre et chaque ligne de reçu ; Public Sans pour tout le reste.",
+      "Retard toujours lu sur cinq paliers fixes (0, 30, 60, 120, 180 min).",
+      "Un seul mouvement auteur : la sortie du reçu."
+    ],
+    "rules": [
+      { "name": "La règle du bleu unique", "body": "Le bleu thermique signifie « droit ouvert » et rien d'autre : pas de lien, pas de bouton, pas de bandeau, pas de décor. Un écran sans droit ouvert ne montre pas de bleu dans son contenu. L'anneau de focus, le curseur et la sélection sont à l'encre.", "section": "colors" },
+      { "name": "La règle du fait et du droit", "body": "Le rouge dit ce qui est arrivé au train ; le bleu dit ce que le voyageur peut récupérer. Un train supprimé affiche son « Supprimé » en rouge et son « Droit ouvert » en bleu, jamais l'un à la place de l'autre.", "section": "colors" },
+      { "name": "La règle des deux voix", "body": "Tout chiffre (numéro de train, heure, retard, compteur, pourcentage dans une ligne de reçu) et toute ligne étiquette / valeur du reçu passe en JetBrains Mono tabulaire. Tout le reste, y compris le titre du verdict, est en Public Sans. Pas de troisième famille.", "section": "typography" },
+      { "name": "La règle du papier posé", "body": "Rien ne flotte : les surfaces sont du papier sur un bureau. Pas d'ombre portée décalée dure, pas de verre dépoli, pas de carte surélevée au survol ; l'état se marque par un contour encre.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do réserver le bleu thermique `#3B3FA8` au seul droit ouvert : titre du verdict, mention d'état, compteur de droits.",
+      "Do écrire chaque chiffre et chaque ligne de reçu en JetBrains Mono tabulaire, et tout le reste en Public Sans.",
+      "Do lire tout retard sur les cinq paliers fixes 0 / 30 / 60 / 120 / 180 min, avec le chiffre exact à côté.",
+      "Do présenter un résultat comme un reçu : fente encre, papier thermique à bord cranté, lignes étiquette / valeur, pointillés, 460 px au plus.",
+      "Do garder la sortie du reçu comme seul mouvement auteur, et la couper sous `prefers-reduced-motion`.",
+      "Do garder des cibles tactiles de 44 px au moins (48 px pour les boutons et champs principaux).",
+      "Do coller l'icône de lien externe au dernier mot du libellé."
+    ],
+    "donts": [
+      "Don't imiter la SNCF : ni ses couleurs, ni ses logos, ni sa typographie, ni ses pictogrammes.",
+      "Don't prendre l'allure d'une appli bancaire : pas de cartes dégradées, de grands soldes en couleur, de tableaux de bord à jauges.",
+      "Don't faire gadget ou ludique : pas de confettis, d'animation de célébration, de mascotte, de compteur qui défile.",
+      "Don't utiliser le bleu thermique pour un lien, un bouton, un bandeau, un état de focus ou un décor.",
+      "Don't inventer de paliers intermédiaires ni une jauge continue de retard.",
+      "Don't poser un sur-titre ou une étiquette en capitales au-dessus d'un titre de page ; les capitales espacées vivent seulement dans l'en-tête et les étiquettes du reçu.",
+      "Don't ajouter d'autre mouvement que la sortie du reçu."
+    ]
+  }
+}
