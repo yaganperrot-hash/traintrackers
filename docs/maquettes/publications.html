@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Publications du jour — maquette</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .interne { background: var(--line); font-size: 13px; padding: 8px 16px; text-align: center; }
+  .page { max-width: 1040px; }
+  .top .in { max-width: 1040px; }
+  h1 { margin-bottom: 4px; }
+  .sous { color: var(--ink-2); margin: 0 0 16px; font-size: 15px; }
+  .scenarios { margin: 0 0 24px; max-width: 460px; }
+  h2 { font-size: 18px; margin: 28px 0 4px; }
+  .note { font-size: 14px; color: var(--ink-2); margin: 0 0 12px; }
+
+  /* Bande du carrousel : les images à la suite, comme dans l'app. */
+  .bande-ig { display: grid; grid-auto-flow: column; grid-auto-columns: min(76vw, 300px); gap: 12px;
+              overflow-x: auto; scroll-snap-type: x mandatory; padding: 0 0 12px; }
+  .bande-ig > figure { margin: 0; scroll-snap-align: start; }
+  .bande-ig figcaption { font-size: 13px; color: var(--ink-2); margin-top: 6px; font-family: var(--mono); }
+
+  /* Une image de post, 4:5. Toutes les tailles en cqw : l'image se met à l'échelle comme un PNG 1080 × 1350. */
+  .img { aspect-ratio: 4 / 5; container-type: inline-size; border-radius: 6px; overflow: hidden; display: grid; padding: 7%;
+         box-shadow: 0 1px 3px rgba(0,0,0,.18); }
+  .img.encre { background: var(--ink); color: var(--paper); }
+  .img.papier { background: var(--paper); color: var(--ink); }
+  .img .haut { display: flex; justify-content: space-between; font-size: 4.2cqw; font-weight: 700; }
+  .img.encre .haut { color: #D5D8DC; }
+  .img.papier .haut { color: var(--ink-2); }
+  .img .adr { font-family: var(--mono); font-weight: 700; font-size: 5cqw; }
+  .img.encre .adr { color: #fff; }
+
+  .une { grid-template-rows: auto 1fr auto auto; }
+  .une .gros { align-self: end; }
+  .une .gros b { display: block; font-family: var(--sans); font-variant-numeric: tabular-nums; font-weight: 900; font-size: 44cqw; line-height: .82; letter-spacing: -.04em; }
+  .une .gros span { display: block; font-size: 8cqw; font-weight: 800; line-height: 1.12; margin-top: 4cqw; max-width: 14ch; }
+  .une .tampon-zone { margin: 5cqw 0 0; }
+  .une .tampon-encre { background: var(--paper); font-size: 4.8cqw; padding: 1.6cqw 3.2cqw; }
+  .une .pied-img { display: flex; justify-content: space-between; align-items: baseline; margin-top: 6cqw; padding-top: 4cqw;
+                   border-top: 1px solid #4A4D55; font-size: 3.8cqw; color: #D5D8DC; }
+
+  .liste-img { grid-template-rows: auto auto 1fr auto; }
+  .liste-img h3 { font-size: 7cqw; font-weight: 800; line-height: 1.1; margin: 6cqw 0 3cqw; }
+  .liste-img ol { list-style: none; margin: 0; padding: 0; border-top: 0.5cqw solid var(--ink); align-self: start; }
+  .liste-img li { display: grid; grid-template-columns: 22cqw 1fr; gap: 0 3cqw; padding: 2.6cqw 0; border-bottom: 0.3cqw solid var(--rule); }
+  .liste-img .r { font-family: var(--mono); font-weight: 700; font-size: 5cqw; }
+  .liste-img .r.sup { font-family: var(--sans); font-size: 3.6cqw; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; padding-top: .8cqw; }
+  .liste-img .t { font-weight: 700; font-size: 4.4cqw; line-height: 1.25; }
+  .liste-img .s { display: block; font-weight: 400; font-size: 3.6cqw; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .liste-img .t { min-width: 0; }
+  .liste-img .plus { font-size: 4cqw; font-weight: 700; padding-top: 3cqw; }
+  .liste-img .pied-img { display: flex; justify-content: space-between; align-items: baseline; font-size: 3.6cqw; color: var(--ink-2);
+                         border-top: 0.3cqw solid var(--rule); padding-top: 3cqw; }
+  .liste-img .pied-img .adr { font-size: 4.2cqw; color: var(--ink); }
+
+  .fin { grid-template-rows: auto 1fr auto; }
+  .fin .milieu { align-self: center; }
+  .fin .milieu p { font-size: 9cqw; font-weight: 800; line-height: 1.1; margin: 0 0 5cqw; }
+  .fin .milieu .adr { font-size: 10cqw; display: block; line-height: 1; letter-spacing: -.02em; }
+  .fin .bas { font-size: 3.8cqw; color: #D5D8DC; }
+
+  /* Textes à copier */
+  .textes { display: grid; gap: 16px; }
+  .texte { background: var(--paper); border-radius: var(--r); padding: 14px 16px; }
+  .texte-tete { display: flex; align-items: center; gap: 12px; margin: 0 0 8px; }
+  .texte-tete .btn { margin-left: auto; }
+  .texte-tete b { font-size: 15px; }
+  .texte-tete .compte { font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
+  .texte-tete .compte.trop { color: var(--alerte); font-weight: 700; }
+  .texte pre { white-space: pre-wrap; font-family: var(--sans); font-size: 15px; margin: 0; line-height: 1.5; }
+  .texte .btn { min-height: 36px; padding: 0 14px; font-size: 14px; }
+
+  /* Aperçu X : image + texte */
+  .x { display: grid; gap: 12px; }
+  .x .img { max-width: 300px; }
+  @media (min-width: 960px) {
+    .duo { display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: start; }
+  }
+</style>
+</head>
+<body>
+<div class="interne">Page interne — non publiée sur le site. Maquette, données fictives.</div>
+<header class="top"><div class="in">
+  <a class="marque" href="site.html">monretard.fr</a>
+  <nav aria-label="Principale"><a href="aujourdhui.html">Aujourd'hui</a><a href="publications.html" aria-current="page">Publications</a></nav>
+</div></header>
+
+<main class="page">
+  <h1>Le post du soir</h1>
+  <p class="sous" id="sous"></p>
+  <div class="seg plein scenarios" role="group" aria-label="Scénario à prévisualiser" id="scenarios">
+    <button type="button" data-s="normal" aria-pressed="true">Jour normal</button>
+    <button type="button" data-s="zero" aria-pressed="false">Aucun train</button>
+    <button type="button" data-s="greve" aria-pressed="false">Jour de grève</button>
+  </div>
+
+  <h2>Instagram · carrousel</h2>
+  <p class="note">Format portrait 4:5 (1080 × 1350). Fais défiler les images de gauche à droite.</p>
+  <div class="bande-ig" id="carrousel"></div>
+
+  <div class="duo">
+    <div>
+      <h2>X · image</h2>
+      <p class="note">La première image du carrousel, seule.</p>
+      <div class="x" id="x-img"></div>
+    </div>
+    <div>
+      <h2>Textes à copier</h2>
+      <p class="note">À coller tels quels au moment de publier.</p>
+      <div class="textes" id="textes"></div>
+    </div>
+  </div>
+</main>
+
+<script src="donnees.js"></script>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const ADR = "monretard.fr";
+const HEURE = "22 h";
+const PAR_IMAGE = 6, MAX_LISTES = 8;
+const JOURS = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+const MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+const d0 = new Date(AUJOURDHUI + "T12:00:00");
+const dateLongue = `${JOURS[d0.getDay()]} ${d0.getDate()} ${MOIS[d0.getMonth()]}`;
+const dateCourte = `${JOURS[d0.getDay()].slice(0, 3)}. ${d0.getDate()} ${MOIS[d0.getMonth()]}`;
+const duree = (m) => m < 60 ? `+${m} min` : `+${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")}`;
+const trie = (l) => l.sort((a, b) => (!!b.sup - !!a.sup) || b.r - a.r);
+
+// Trains du jour qui ouvrent un droit, réduits à ce que le post affiche.
+const vrais = trie(TRAINS.filter((t) => t.date === AUJOURDHUI && droit(t, retardMax(t)).ton !== "none")
+  .map((t) => ({ prod: t.prod, num: t.num, route: route(t), r: retardMax(t), sup: !!t.supprime })));
+
+// Jour de grève : fictif, pour voir comment le post tient avec beaucoup de trains.
+function greve() {
+  const l = vrais.slice();
+  const prods = ["TGV INOUI", "Intercités", "OUIGO", "TGV INOUI", "TER"];
+  const axes = ["Paris → Lyon", "Paris → Bordeaux", "Lyon → Marseille", "Paris → Lille", "Nantes → Paris", "Paris → Strasbourg"];
+  for (let i = 0; i < 74; i++) l.push({ prod: prods[i % 5], num: String(5100 + i * 37), route: axes[i % 6],
+    r: 30 + ((i * 53) % 150), sup: i % 4 === 0 });
+  return trie(l);
+}
+const SCENARIOS = { normal: () => vrais, zero: () => [], greve };
+
+function rendre(nom) {
+  const l = SCENARIOS[nom]();
+  const n = l.length, nSup = l.filter((t) => t.sup).length;
+  const pire = l.filter((t) => !t.sup).sort((a, b) => b.r - a.r)[0];
+  $("sous").textContent = `${dateLongue} · arrêté à ${HEURE} · ${n} train${n > 1 ? "s" : ""} ouvre${n > 1 ? "nt" : ""} un droit`;
+
+  // 1. La une
+  const phrase = n === 0 ? "Aucun train ne t'ouvre de droit aujourd'hui"
+    : n === 1 ? "train t'ouvre un droit aujourd'hui" : "trains t'ouvrent un droit aujourd'hui";
+  const une = `<div class="img encre une" role="img" aria-label="${dateLongue} : ${n} ${esc(phrase)}">
+      <div class="haut"><span>${dateCourte}</span><span>arrêté à ${HEURE}</span></div>
+      <div class="gros"><b>${n}</b><span>${phrase}</span></div>
+      ${n ? `<div class="tampon-zone"><span class="tampon-encre">Droit ouvert</span></div>` : "<div></div>"}
+      <div class="pied-img"><span>${n ? "Selon ta gare d'arrivée" : "Bonne nouvelle"}</span><span class="adr">${ADR}</span></div>
+    </div>`;
+
+  // 2. Les listes, 6 trains par image, 8 images au plus.
+  const pages = [];
+  for (let i = 0; i < n && pages.length < MAX_LISTES; i += PAR_IMAGE) pages.push(l.slice(i, i + PAR_IMAGE));
+  const montres = pages.reduce((s, p) => s + p.length, 0);
+  const listes = pages.map((p, k) => `<div class="img papier liste-img" role="img" aria-label="Trains ${k * PAR_IMAGE + 1} à ${k * PAR_IMAGE + p.length}">
+      <div class="haut"><span>${dateCourte}</span><span>${pages.length > 1 ? `${k + 1}/${pages.length}` : ""}</span></div>
+      <h3>Ils t'ouvrent un droit</h3>
+      <ol>${p.map((t) => `<li>${t.sup ? `<span class="r sup">Supprimé</span>` : `<span class="r">+${t.r}</span>`}
+        <span class="t">${esc(t.prod)} ${esc(t.num)}<span class="s">${esc(t.route)}</span></span></li>`).join("")}
+        ${k === pages.length - 1 && montres < n ? `<li class="plus" style="display:block">+ ${n - montres} autres sur ${ADR}</li>` : ""}</ol>
+      <div class="pied-img"><span>Retards en min · selon ta gare</span><span class="adr">${ADR}</span></div>
+    </div>`);
+
+  // 3. La fin
+  const fin = `<div class="img encre fin" role="img" aria-label="Vérifie ton train sur ${ADR}">
+      <div class="haut"><span>${dateCourte}</span><span></span></div>
+      <div class="milieu"><p>${n ? "Ton train est dedans&nbsp;?" : "Un doute sur ton train&nbsp;?"}</p><span class="adr">${ADR}</span></div>
+      <div class="bas">Lien en bio · On ne fait pas la demande à ta place.</div>
+    </div>`;
+
+  const imgs = [une, ...listes, fin];
+  $("carrousel").innerHTML = imgs.map((h, i) => `<figure>${h}<figcaption>${i + 1}/${imgs.length}</figcaption></figure>`).join("");
+  $("x-img").innerHTML = une;
+
+  // Textes
+  const xTxt = n === 0
+    ? `Aucun train ne t'ouvre de droit aujourd'hui. Rare, profitons-en.\nUn doute sur ton train ? → ${ADR}`
+    : `${n} train${n > 1 ? "s" : ""} t'ouvre${n > 1 ? "nt" : ""} un droit aujourd'hui${nSup ? `, dont ${nSup} supprimé${nSup > 1 ? "s" : ""}` : ""}.\n`
+      + (pire ? `Le plus gros retard : ${pire.prod} ${pire.num}, ${duree(pire.r)}.\n` : "")
+      + `Ton train est dedans ? → ${ADR}/aujourdhui`;
+  const igTxt = n === 0
+    ? `${dateLongue} : aucun train ne t'ouvre de droit aujourd'hui.\n\nUn doute sur ton train ? Vérifie-le sur ${ADR} (lien en bio).`
+    : `${dateLongue} : ${n} train${n > 1 ? "s" : ""} t'ouvre${n > 1 ? "nt" : ""} un droit.\n\n`
+      + (pire ? `Le plus gros retard : ${pire.prod} ${pire.num} ${pire.route}, ${duree(pire.r)}.\n` : "")
+      + (nSup ? `${nSup} train${nSup > 1 ? "s" : ""} supprimé${nSup > 1 ? "s" : ""} : remboursement intégral.\n` : "")
+      + `\nTon droit dépend du retard à ta gare d'arrivée. Vérifie ton train sur ${ADR} (lien en bio).\n\n#train #retard #remboursement`;
+  // X compte une adresse comme 23 caractères, quelle que soit sa longueur.
+  const longueurX = (s) => s.replace(/\S+\.fr\S*/g, "x".repeat(23)).length;
+  const blocs = [
+    { titre: "X", txt: xTxt, compte: `${longueurX(xTxt)}/280`, trop: longueurX(xTxt) > 280 },
+    { titre: "Instagram · légende", txt: igTxt, compte: `${igTxt.length}/2200`, trop: igTxt.length > 2200 },
+  ];
+  $("textes").innerHTML = blocs.map((b, i) => `<div class="texte">
+      <div class="texte-tete"><b>${b.titre}</b><span class="compte ${b.trop ? "trop" : ""}">${b.compte}</span>
+        <button class="btn btn-2" type="button" data-copie="${i}">Copier</button></div>
+      <pre id="txt-${i}">${esc(b.txt)}</pre></div>`).join("");
+}
+
+document.addEventListener("click", (e) => {
+  const s = e.target.closest("[data-s]");
+  if (s) {
+    $("scenarios").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", b === s));
+    rendre(s.dataset.s);
+  }
+  const c = e.target.closest("[data-copie]");
+  if (c) {
+    navigator.clipboard?.writeText($("txt-" + c.dataset.copie).textContent).then(() => {
+      c.textContent = "Copié"; setTimeout(() => (c.textContent = "Copier"), 1500);
+    });
+  }
+});
+const depart = SCENARIOS[new URLSearchParams(location.search).get("scenario")] ? new URLSearchParams(location.search).get("scenario") : "normal";
+$("scenarios").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.s === depart));
+rendre(depart);
+</script>
+</body>
+</html>
