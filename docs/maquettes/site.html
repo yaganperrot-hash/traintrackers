@@ -57,9 +57,8 @@
   @media (min-width: 960px) {
     .top .in, .page { max-width: 1040px; }
     .cols { display: grid; grid-template-columns: minmax(0, 1fr) 460px; gap: 40px; align-items: start; }
-    .col-d { display: block; position: sticky; top: 16px; padding-top: 28px; }
-    .col-d .fente { margin-top: 0; }
-    .attente { border: 1.5px dashed var(--rule); border-radius: var(--r); padding: 28px 24px; color: var(--ink-2); text-align: center; margin: 0 16px; }
+    .col-d { display: block; padding-top: 28px; }
+    .col-d .arrets { margin-top: 0; }
   }
 </style>
 </head>
@@ -158,9 +157,7 @@
   <p class="pied">Données SNCF Voyageurs en open data (ODbL), via transport.data.gouv.fr. Site indépendant, sans lien avec la SNCF.
     On ne fait pas la demande à ta place et on ne collecte aucune donnée personnelle.</p>
  </div>
- <aside class="col-d" id="col-recu" aria-label="Ton reçu">
-   <p class="attente" id="attente" hidden>Choisis la gare où tu es descendu&nbsp;: ton reçu s'imprime ici.</p>
- </aside>
+ <aside class="col-d" id="col-recu" aria-label="Ta gare"></aside>
 </div></main>
 
 <script src="donnees.js"></script>
@@ -169,7 +166,7 @@
 // Règles d'interaction :
 // - rien ne défile tout seul ; la gare touchée reste sous le doigt ;
 // - une fois trouvé, le train remplace le formulaire (pas de doublon) ;
-// - téléphone : le reçu s'ouvre sous la gare touchée ; PC : dans la colonne de droite, toujours à l'écran.
+// - téléphone : le reçu s'ouvre sous la gare touchée ; PC : gares à droite (haut d'écran), reçu à gauche sous la carte du train.
 const $ = (id) => document.getElementById(id);
 const etat = { train: null, arret: null, depuisGare: false };
 const PC = matchMedia("(min-width: 960px)");
@@ -217,7 +214,7 @@ function formulaire(visible) {
 }
 
 function viderResultats() {
-  rangerVerdict();
+  rangerVerdict(); $("arrets").hidden = true;
   ["choix", "introuvable", "fiche"].forEach((id) => ($(id).hidden = true));
   etat.train = null; etat.arret = null;
   majAttente();
@@ -226,16 +223,20 @@ function viderResultats() {
 // Le reçu est un seul nœud qu'on déplace.
 function rangerVerdict() { $("verdict").hidden = true; $("fiche").appendChild($("verdict")); }
 
+// PC : la liste des gares passe dans la colonne de droite ; téléphone : elle reste sous la carte.
+function placerArrets() {
+  if (PC.matches) $("col-recu").appendChild($("arrets"));
+  else $("ancre-supp").after($("arrets"));
+}
+
+// Téléphone : sous la gare touchée. PC : à gauche, sous la carte du train (les gares, à droite, ne bougent jamais).
 function placerVerdict() {
   const v = $("verdict");
-  if (PC.matches) $("col-recu").appendChild(v);
-  else if (etat.train.supprime) $("ancre-supp").appendChild(v);
+  if (PC.matches || etat.train.supprime) $("ancre-supp").appendChild(v);
   else $("arrets-liste").querySelectorAll(".arret")[etat.arret].after(v);
 }
 
-function majAttente() {
-  $("attente").hidden = !(etat.train && !$("fiche").hidden && !etat.train.supprime && etat.arret === null);
-}
+function majAttente() {}
 
 function ouvrirTrain(t, arret = null, depuisGare = false) {
   etat.train = t; etat.arret = null; etat.depuisGare = depuisGare;
@@ -253,7 +254,7 @@ function ouvrirTrain(t, arret = null, depuisGare = false) {
     $("arrets").hidden = true;
     placerVerdict(); montrerVerdict();
   } else {
-    $("arrets").hidden = false; rendreArrets();
+    $("arrets").hidden = false; placerArrets(); rendreArrets();
     if (arret !== null) ouvrirGare(arret);
   }
   majAttente(); majURL();
@@ -403,7 +404,10 @@ $("dep").addEventListener("input", rendreSansNum);
 $("chercher-hier").addEventListener("click", () => chercher($("num").value, HIER));
 $("vers-sansnum").addEventListener("click", () => { ouvrirSansNum(true); $("arr").focus(); });
 // Passage PC ↔ téléphone (fenêtre redimensionnée) : on replace le reçu ouvert.
-PC.addEventListener("change", () => { if (etat.train && !$("verdict").hidden) placerVerdict(); });
+PC.addEventListener("change", () => {
+  placerArrets();
+  if (etat.train && !$("verdict").hidden) placerVerdict();
+});
 
 // « Aide » ouvre l'explication
 function ouvrirAide() { if (location.hash === "#aide") $("aide").open = true; }
