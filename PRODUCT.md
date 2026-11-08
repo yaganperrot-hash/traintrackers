@@ -49,8 +49,8 @@ absent ou sans droit est toujours expliqué, pour qu'un visiteur ne croie jamais
 
 ## Brand Commitments
 
-- **Nom : à définir.** « traintracker » est un nom de travail, pas une marque : ne pas construire
-  d'identité autour.
+- **Nom : monretard.fr** (choisi le 2026-11-08). La marque est l'adresse, toujours écrite en minuscules
+  avec son « .fr ». « traintracker » reste le nom de travail du dépôt.
 - **Ton : tutoiement, complice** (choisi le 2026-11-08). Direct et familier, proche des réseaux
   sociaux, mais les faits restent exacts et sourcés : on ne promet jamais un droit incertain.
 - Site indépendant, non affilié à la SNCF : ne jamais imiter la marque, les couleurs ou les logos SNCF.

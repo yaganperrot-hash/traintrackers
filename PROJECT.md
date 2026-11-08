@@ -58,6 +58,10 @@ opérateurs concurrents et des trains internationaux. → Prototype du flux en p
   vers la garantie de la région). Un visiteur qui ne trouve pas son train ne doit jamais croire à un bug.
 - **2026-11-07 — Seuil évalué à chaque arrêt** : un train entre dans le post s'il dépasse son seuil à
   au moins un arrêt, avec la mention « selon votre gare d'arrivée ». Le site demande la gare d'arrivée.
+- **2026-11-08 — Nom : monretard.fr** : la marque est l'adresse elle-même, écrite « monretard.fr » sur le site
+  et sur chaque visuel de post (l'adresse doit figurer sur l'image : les captures circulent sans légende).
+  Domaine libre au registre AFNIC (RDAP) le 2026-11-08, pas encore réservé. Restent à vérifier : marque
+  INPI, noms de comptes X et Instagram. Le dépôt garde son nom de travail « traintracker ».
 
 ## Veille initiale (2026-11-07) — à confirmer aux sources officielles
 - **G30** (TGV INOUI, Intercités) : indemnité à partir de 30 min de retard à l'arrivée. Les barèmes
@@ -73,6 +77,6 @@ opérateurs concurrents et des trains internationaux. → Prototype du flux en p
   validation Meta. Non retenue pour l'instant (publication manuelle).
 
 ## Questions ouvertes
-- Nom du projet et nom de domaine.
+- Réserver monretard.fr ; vérifier la marque (INPI) et les noms de comptes X / Instagram.
 - Couverture du flux pour Ouigo, les opérateurs concurrents et les trains internationaux.
 - Volume de stockage par jour → choix du VPS.
