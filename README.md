@@ -37,10 +37,11 @@ L'application complète (prévue : `cp .env.example .env`, puis `docker-compose 
 │   ├── SESSION.md       # état de la session courante
 │   └── DEBUG.md         # bugs en cours / résolus
 ├── backend/
-│   └── regles.py        # règles d'éligibilité au remboursement (zone critique)
-├── tests/               # pytest (test_regles.py)
+│   ├── regles.py        # règles d'éligibilité au remboursement (zone critique)
+│   └── marques.py       # marque et région des TER à garantie, par ligne GTFS (zone critique)
+├── tests/               # pytest (test_regles.py, test_marques.py)
 ├── docs/
-│   ├── regles-remboursement.md  # veille des règles (brouillon à valider)
+│   ├── regles-remboursement.md  # veille des règles (validé le 2026-11-07)
 │   └── maquettes/site.html      # maquette du site, données fictives
 ├── poc/                 # prototype du flux (jalon 1)
 │   ├── collect.py       # collecte GTFS-RT toutes les 2 min

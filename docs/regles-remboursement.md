@@ -74,7 +74,8 @@ du GTFS, ou les gares) et, pour la Normandie et le Centre-Val de Loire, le **typ
 Vérifié le 2026-11-07 : le GTFS **ne porte ni la région ni la marque** (une seule agence « SNCF
 VOYAGEURS », aucun nom Nomad / Rémi / Krono dans les lignes). Pistes : région déduite des coordonnées
 des gares (polygones des régions, open data) ; type de train à partir de listes de lignes / numéros
-publiées par les régions. À traiter au jalon 2 (encodage).
+publiées par les régions. **Fait le 2026-11-08** : marque et région par la ligne GTFS
+(`backend/marques.py`), voir « Identification des trains à garantie ».
 
 ## Suppressions (règlement UE 2021/782, art. 18 et 19 ✅ ; pratiques SNCF ⚠️)
 
@@ -146,20 +147,33 @@ publiées par les régions. À traiter au jalon 2 (encodage).
 - [x] TER : garanties des 11 régions du flux (2026-11-07, toutes ⚠️ à confirmer à la main).
 - [ ] TER : confirmer la dérogation française (code des transports L2151-2) et son effet sur l'art. 18.
 - [x] TER : le GTFS ne donne ni région ni marque (2026-11-07) → région par coordonnées des gares.
-- [ ] TER : identifier les trains Nomad Résa (Normandie) et Rémi Express (Centre-Val de Loire) —
-      hypothèses ci-dessous, à confirmer.
-
-### Identification des trains à garantie (hypothèses du 2026-11-07, ⚠️)
-
-- **Région d'un TER** : `poc/regions.py` (gares → région par polygones, région majoritaire des arrêts
-  hors Île-de-France). 39 763 / 39 927 TER rattachés, 11 régions. Limite : 47 lignes interrégionales
-  où la région majoritaire peut différer de la région organisatrice.
-- **Nomad Résa (Normandie)** : TER normand desservant **Paris Saint-Lazare** sur les axes
-  Paris–Rouen–Le Havre, Paris–Caen–Cherbourg, Paris–Trouville-Deauville. Pas Paris–Vernon–Rouen ni
-  Paris–Évreux (Nomad classique). Granville incertain. Source : article 2026 sur les grèves en Normandie
-  (https://www.toutsurmesfinances.com/actualites/?p=1393), pages Nomad.
-- **Rémi Express (Centre-Val de Loire)** : TER Centre desservant **Paris Austerlitz** sur Paris–Orléans–Tours
-  et Paris–Bourges–Montluçon. Source : page Rémi (≈ 2024) ; nouveau contrat avec lot « Rémi Express »
-  depuis le 2026-09-28 (avis TED 301095-2026) → liste à reconfirmer.
-- Ces règles se testent sur les données collectées (noms de lignes, gares desservies) avant encodage.
+- [x] TER : identifier les trains Nomad Résa (Normandie) et Rémi Express (Centre-Val de Loire) —
+      2026-11-08, par la ligne GTFS (`backend/marques.py`), voir ci-dessous.
+- [ ] Phrases de la maquette à sourcer : « demande sous 30 jours » (Normandie), « pas reçu sous
+      15 jours » (OUIGO), seuil d'affichage « moins de 5 min » (choix interne à fixer).
+- [ ] K1 Paris–Dieppe (« Krono Paris/Normandie ») : à réservation ? Si oui, l'ajouter à la table.
+- [ ] K16+ Tours–Blois–Orléans : couvert par Rémi Express ? En attendant, traité en Rémi (60 min).
+- [ ] Seuil « 30 min » ou « plus de 30 min » : les extraits du 2026-11-08 disent « plus de 30 minutes »
+      (Rémi Express) et « +30 min » (Normandie) ; le code applique ≥ 30 (doc validé). À trancher à la lecture.
 - [x] Règles « suppression » et « correspondance » (art. 12, 18, 19 lus sur EUR-Lex).
+
+### Identification des trains à garantie (vérifié le 2026-11-08)
+
+- **La ligne GTFS identifie la marque.** `routes.txt` porte un code (`route_short_name`) et un nom
+  (`route_long_name`). Les anciennes lignes Intercités reprises par les régions ont un code en « + ».
+  Le « + » seul ne suffit pas (Grand Est et Hauts-de-France l'utilisent aussi) et un même code existe
+  dans deux régions (K2+) : on identifie par **code + nom**.
+- **Normandie** : la garantie couvre « les billets à réservation **Krono+ et Krono Paris/Normandie** »
+  (retard ≥ 30 min ou suppression inopinée ; bon voyage numérique valable 1 an) ⚠️ extrait de
+  https://www.ter.sncf.com/normandie/services-contacts/sav/garantie-voyageurs-occasionnels .
+  Lignes Krono+ du GTFS : **K1+ Paris–Le Havre, K2+ Paris–Cherbourg, K21+ Paris–Caen, K3+ Paris–Deauville**.
+- **Centre-Val de Loire** : garantie Rémi Express sur **Paris–Bourges, Tours–Orléans–Paris,
+  Paris–Montargis–Nevers**, tous tarifs hors abonnements ; Rémi classique : 60 min ⚠️ extrait de
+  https://www.ter.sncf.com/centre-val-de-loire/services-contacts/garantie-ponctualite-remi-express .
+  Lignes du GTFS : **K5+ Paris–Bourges–Nevers, K6+ Paris–Orléans–Tours, K8+ Paris–Orléans,
+  K2+ Paris–Montargis–Nevers**. L'hypothèse « Bourges–Montluçon » du 2026-11-07 était fausse.
+  Tous les autres TER Centre-Val de Loire sont des trains Rémi (garantie 60 min).
+- **Région** : la ligne fixe la région. La région par majorité d'arrêts (`poc/regions.py`) se trompe
+  sur K2+ Paris–Montargis–Nevers (attribuée à la Bourgogne-Franche-Comté).
+- **Garde-fou** : `tests/test_marques.py` vérifie que chaque ligne de la table existe encore dans le
+  dernier GTFS ; un renommage par la SNCF fait échouer le test au lieu de faire perdre la garantie.
