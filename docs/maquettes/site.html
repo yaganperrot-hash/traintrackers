@@ -59,6 +59,7 @@
     .cols { display: grid; grid-template-columns: minmax(0, 1fr) 460px; gap: 40px; align-items: start; }
     .col-d { display: block; padding-top: 28px; }
     .col-d .arrets { margin-top: 0; }
+    .arrets-tete { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   }
 </style>
 </head>
@@ -133,8 +134,9 @@
       </div>
       <div class="fiche-supp" id="ancre-supp"></div>
       <div class="arrets" id="arrets">
-        <h2>Où es-tu descendu&nbsp;?</h2>
-        <p class="aide-champ">Ton droit dépend du retard à ta gare, pas au terminus.</p>
+        <div class="arrets-tete"><h2 id="arrets-titre">Où es-tu descendu&nbsp;?</h2>
+          <button type="button" class="lien" id="changer-gare" hidden>Changer de gare</button></div>
+        <p class="aide-champ" id="arrets-aide">Ton droit dépend du retard à ta gare, pas au terminus.</p>
         <ul class="liste arrets-liste" id="arrets-liste"></ul>
       </div>
       <div id="verdict" hidden role="region" aria-label="Ton verdict">
@@ -229,11 +231,22 @@ function placerArrets() {
   else $("ancre-supp").after($("arrets"));
 }
 
-// Téléphone : sous la gare touchée. PC : à gauche, sous la carte du train (les gares, à droite, ne bougent jamais).
+// Téléphone : sous la gare touchée.
+// PC : colonne de droite ; la liste se replie sur la gare choisie et le reçu s'imprime dessous, en haut d'écran.
 function placerVerdict() {
   const v = $("verdict");
-  if (PC.matches || etat.train.supprime) $("ancre-supp").appendChild(v);
+  if (etat.train.supprime) PC.matches ? $("col-recu").appendChild(v) : $("ancre-supp").appendChild(v);
+  else if (PC.matches) $("arrets").after(v);
   else $("arrets-liste").querySelectorAll(".arret")[etat.arret].after(v);
+  replierListe();
+}
+
+function replierListe() {
+  const replie = PC.matches && etat.train && !etat.train.supprime && etat.arret !== null;
+  $("arrets-liste").querySelectorAll(".arret").forEach((x) => (x.parentElement.hidden = replie && +x.dataset.i !== etat.arret));
+  $("changer-gare").hidden = !replie;
+  $("arrets-aide").hidden = replie;
+  $("arrets-titre").innerHTML = replie ? "Ta gare" : "Où es-tu descendu&nbsp;?";
 }
 
 function majAttente() {}
@@ -296,7 +309,7 @@ function fermerGare() {
   const i = etat.arret;
   etat.arret = null;
   $("arrets-liste").querySelectorAll(".arret").forEach((x) => x.setAttribute("aria-expanded", "false"));
-  rangerVerdict(); majAttente();
+  rangerVerdict(); replierListe(); majAttente();
   return i;
 }
 
@@ -406,7 +419,11 @@ $("vers-sansnum").addEventListener("click", () => { ouvrirSansNum(true); $("arr"
 // Passage PC ↔ téléphone (fenêtre redimensionnée) : on replace le reçu ouvert.
 PC.addEventListener("change", () => {
   placerArrets();
-  if (etat.train && !$("verdict").hidden) placerVerdict();
+  if (etat.train && !$("verdict").hidden) placerVerdict(); else if (etat.train) replierListe();
+});
+$("changer-gare").addEventListener("click", () => {
+  const i = fermerGare(); majURL();
+  $("arrets-liste").querySelectorAll(".arret")[i].focus({ preventScroll: true });
 });
 
 // « Aide » ouvre l'explication
