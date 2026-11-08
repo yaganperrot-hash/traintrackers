@@ -49,7 +49,8 @@ absent ou sans droit est toujours expliqué, pour qu'un visiteur ne croie jamais
 
 ## Brand Commitments
 
-- **Nom : idfretard** (choisi le 2026-11-08 ; remplace le nom de travail « traintracker »).
+- **Nom : à définir.** « traintracker » est un nom de travail, pas une marque : ne pas construire
+  d'identité autour.
 - **Ton : tutoiement, complice** (choisi le 2026-11-08). Direct et familier, proche des réseaux
   sociaux, mais les faits restent exacts et sourcés : on ne promet jamais un droit incertain.
 - Site indépendant, non affilié à la SNCF : ne jamais imiter la marque, les couleurs ou les logos SNCF.
