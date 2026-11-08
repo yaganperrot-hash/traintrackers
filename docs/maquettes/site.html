@@ -32,7 +32,10 @@
   .arret { grid-template-columns: 1fr 112px; }
   .arret .paliers { grid-column: 2; margin: 4px 0 0; }
   .arret .r { grid-row: 1; }
-  .ligne[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--ink); }
+  html { overflow-anchor: none; } /* on compense nous-mêmes, pour que la gare touchée reste sous le doigt */
+  .ligne[aria-pressed="true"], .ligne[aria-expanded="true"] { box-shadow: 0 0 0 2px var(--ink); }
+  .arrets-liste .fente { margin-top: 10px; }
+  .recu-pied { display: flex; justify-content: flex-end; margin-top: 8px; }
   .introuvable { background: var(--paper); border-radius: var(--r); padding: 18px; }
   .introuvable ul { margin: 10px 0 14px; padding-left: 20px; display: grid; gap: 4px; }
   .actions { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -104,9 +107,9 @@
       <div class="arrets" id="arrets">
         <h2>Où es-tu descendu&nbsp;?</h2>
         <p class="aide-champ">Ton droit dépend du retard à ta gare, pas au terminus.</p>
-        <ul class="liste" id="arrets-liste"></ul>
+        <ul class="liste arrets-liste" id="arrets-liste"></ul>
       </div>
-      <div id="verdict" hidden>
+      <div id="verdict" hidden role="region" aria-label="Ton verdict">
         <div class="fente" aria-hidden="true"></div>
         <div class="recu-zone"><article class="recu" id="recu" aria-labelledby="v-titre"></article></div>
       </div>
@@ -172,43 +175,77 @@ function ligneTrain(t, onClick) {
 }
 
 function viderResultats() {
+  rangerVerdict();
   ["choix", "introuvable", "fiche"].forEach((id) => ($(id).hidden = true));
   etat.train = null; etat.arret = null;
 }
 
-function ouvrirTrain(t, arret = null) {
-  etat.train = t; etat.arret = arret;
+function aideRecherche(visible) {
+  $("num-aide").hidden = !visible; $("btn-sansnum").hidden = !visible;
+  if (!visible) ouvrirSansNum(false);
+}
+
+// Le reçu est un seul nœud qu'on déplace : sous la gare touchée, ou sous l'en-tête pour un train supprimé.
+function rangerVerdict() { $("verdict").hidden = true; $("fiche").appendChild($("verdict")); }
+
+function ouvrirTrain(t, arret = null, cacherAide = true) {
+  etat.train = t; etat.arret = null;
+  if (cacherAide) aideRecherche(false); // pas depuis la recherche par gare : la liste cliquée est au-dessus
   $("fiche").hidden = false;
   $("f-titre").textContent = `${t.prod} ${t.num}`;
   $("f-route").textContent = `${route(t)}, ${jourLabel(t.date)}, départ ${t.h}. Cause annoncée : ${t.cause}.`;
-  if (t.supprime) { $("arrets").hidden = true; montrerVerdict(); }
-  else {
+  rangerVerdict();
+  if (t.supprime) {
+    $("arrets").hidden = true;
+    $("fiche").querySelector(".entete-train").after($("verdict"));
+    montrerVerdict();
+  } else {
     $("arrets").hidden = false; rendreArrets();
-    if (arret === null) $("verdict").hidden = true; else montrerVerdict();
+    if (arret !== null) ouvrirGare(arret);
   }
   majURL();
-  annoncer(t.supprime ? `${t.prod} ${t.num} : supprimé. Ton verdict est affiché plus bas.`
-                      : `${t.prod} ${t.num} trouvé. Choisis plus bas la gare où tu es descendu.`);
+  annoncer(t.supprime ? `${t.prod} ${t.num} : supprimé. Ton verdict suit.`
+                      : `${t.prod} ${t.num} trouvé. Choisis la gare où tu es descendu.`);
 }
 
 function rendreArrets() {
+  rangerVerdict();
   const ul = $("arrets-liste"); ul.replaceChildren();
   etat.train.gares.slice(1).forEach(([g, r], i) => {
     const li = document.createElement("li");
     const b = document.createElement("button");
-    b.type = "button"; b.className = "ligne arret";
-    b.setAttribute("aria-pressed", etat.arret === i);
+    b.type = "button"; b.className = "ligne arret"; b.dataset.i = i;
+    b.setAttribute("aria-expanded", "false"); b.setAttribute("aria-controls", "verdict");
     const n = indexPalier(r);
     b.innerHTML = `<span class="t">${esc(g)}</span><span class="r ${r >= 30 ? "alerte" : "attente"}">+${r} min</span>
       <span class="paliers ${r >= 30 ? "alerte" : ""}" aria-hidden="true">${[0, 1, 2, 3, 4].map((k) => `<i class="${k <= n ? "on" : ""}"></i>`).join("")}</span>`;
     b.addEventListener("click", () => {
-      etat.arret = i;
-      ul.querySelectorAll(".ligne").forEach((x) => x.setAttribute("aria-pressed", x === b));
-      montrerVerdict(); majURL();
-      annoncer(`Verdict pour ${g} affiché plus bas.`);
+      const avant = b.getBoundingClientRect().top;
+      if (etat.arret === i) fermerGare(); else ouvrirGare(i);
+      // Le reçu refermé au-dessus a pu faire remonter la gare : on la remet sous le doigt.
+      const ecart = b.getBoundingClientRect().top - avant;
+      if (ecart) scrollBy(0, ecart);
+      majURL();
     });
     li.appendChild(b); ul.appendChild(li);
   });
+}
+
+function ouvrirGare(i) {
+  etat.arret = i;
+  const boutons = $("arrets-liste").querySelectorAll(".arret");
+  boutons.forEach((x) => x.setAttribute("aria-expanded", +x.dataset.i === i));
+  boutons[i].after($("verdict"));
+  montrerVerdict();
+  annoncer(`Verdict pour ${etat.train.gares[i + 1][0]} : ${$("v-titre").textContent}.`);
+}
+
+function fermerGare() {
+  const i = etat.arret;
+  etat.arret = null;
+  $("arrets-liste").querySelectorAll(".arret").forEach((x) => x.setAttribute("aria-expanded", "false"));
+  rangerVerdict();
+  return i;
 }
 
 function montrerVerdict() {
@@ -219,8 +256,16 @@ function montrerVerdict() {
   const recu = $("recu");
   recu.className = "recu" + (d.ton === "none" ? "" : " droit-ok");
   const n = indexPalier(r);
+  // Ordre : l'essentiel d'abord (verdict, bouton), puis le détail du reçu.
   recu.innerHTML = `
     <p class="recu-titre">Ton verdict</p>
+    <hr class="pointille">
+    <dl class="lignes"><div><dt>Statut</dt><dd>${esc(d.tampon)}</dd></div></dl>
+    <h2 class="verdict-titre" id="v-titre">${esc(d.titre)}</h2>
+    <p class="verdict-texte">${esc(d.texte)}</p>
+    ${d.pct ? `<p class="exemple">${exemple(d.pct)} Le montant dépend du prix que tu as payé.</p>` : ""}
+    ${d.lien ? `<a class="btn cta" href="${d.lien[1]}" target="_blank" rel="noopener">${libelleExt(d.lien[0])}</a>
+      <p class="sortie-note">Tu quittes le site : on ne transmet rien.</p>` : ""}
     <hr class="pointille">
     <dl class="lignes">
       <div><dt>Train</dt><dd>${esc(t.prod)} ${esc(t.num)}</dd></div>
@@ -230,28 +275,26 @@ function montrerVerdict() {
     </dl>
     ${g ? `<div class="paliers ${r >= 30 ? "alerte" : ""}" aria-hidden="true">${[0, 1, 2, 3, 4].map((k) => `<i class="${k <= n ? "on" : ""}"></i>`).join("")}</div>
       <div class="paliers-legende" aria-hidden="true"><span>0</span><span>30</span><span>60</span><span>120</span><span>180</span></div>` : ""}
-    <hr class="pointille">
-    <dl class="lignes"><div><dt>Statut</dt><dd>${esc(d.tampon)}</dd></div></dl>
-    <h2 class="verdict-titre" id="v-titre">${esc(d.titre)}</h2>
-    <p class="verdict-texte">${esc(d.texte)}</p>
-    ${d.pct ? `<p class="exemple">${exemple(d.pct)} Le montant dépend du prix que tu as payé.</p>` : ""}
-    <dl class="lignes">
+    <dl class="lignes" style="margin-top:8px">
       ${d.forme ? `<div><dt>Forme</dt><dd>${esc(d.forme)}</dd></div>` : ""}
       <div><dt>Règle</dt><dd>${esc(d.regle)}</dd></div>
     </dl>
     ${d.g30 ? `<p class="exemple" style="margin-top:8px">${esc(d.g30)}</p>` : ""}
-    ${d.lien ? `<a class="btn cta" href="${d.lien[1]}" target="_blank" rel="noopener">${libelleExt(d.lien[0])}</a>
-      <p class="sortie-note">Tu quittes le site : on ne transmet rien.</p>` : ""}
     ${d.suite ? `<hr class="pointille"><div class="suite"><h3>Et maintenant&nbsp;?</h3><ul>${d.suite.map((s, k) => `<li><p>${esc(s.texte)}</p>${
       s.lien ? `<a class="btn btn-2" href="${s.lien}" target="_blank" rel="noopener">${libelleExt(s.action)}</a>`
              : `<button type="button" class="btn btn-2" data-suite="${k}">${esc(s.action)}</button>`}</li>`).join("")}</ul></div>` : ""}
-    ${g ? `<p class="aide-champ" style="margin-top:12px">Pas la bonne gare ? Choisis-en une autre dans la liste au-dessus.</p>` : ""}`;
+    ${g ? `<div class="recu-pied"><button type="button" class="lien" id="fermer">Fermer</button></div>` : ""}`;
   $("verdict").hidden = false;
   recu.classList.remove("sort"); void recu.offsetWidth; recu.classList.add("sort");
   // Chercher un autre train : action explicite, on ramène au champ numéro.
   recu.querySelectorAll("[data-suite]").forEach((b) => b.addEventListener("click", () => {
-    viderResultats(); majURL(); $("num").value = ""; $("num").focus();
+    viderResultats(); aideRecherche(true); majURL(); $("num").value = ""; $("num").focus();
   }));
+  const f = $("fermer");
+  if (f) f.addEventListener("click", () => {
+    const i = fermerGare(); majURL();
+    $("arrets-liste").querySelectorAll(".arret")[i].focus({ preventScroll: true });
+  });
 }
 
 function chercher(num, date) {
@@ -266,13 +309,13 @@ function chercher(num, date) {
   if (res.length > 1) {
     const ul = $("choix-liste"); ul.replaceChildren();
     res.forEach((t) => ul.appendChild(ligneTrain(t, () => ouvrirTrain(t))));
-    $("choix").hidden = false;
+    $("choix").hidden = false; aideRecherche(false);
     annoncer("Plusieurs trains portent ce numéro : choisis le tien plus bas.");
     return;
   }
   $("intro-titre").textContent = `On ne trouve pas le train ${num} en retard ${jour === AUJOURDHUI ? "aujourd'hui" : jour === HIER ? "hier" : "le " + jour}`;
   $("chercher-hier").hidden = jour !== AUJOURDHUI;
-  $("introuvable").hidden = false;
+  $("introuvable").hidden = false; aideRecherche(true);
   annoncer($("intro-titre").textContent);
 }
 
@@ -286,7 +329,7 @@ function rendreSansNum() {
   l.forEach((t) => ul.appendChild(ligneTrain(t, () => {
     const i = arr ? t.gares.slice(1).findIndex(([g]) => norm(g).includes(norm(arr))) : -1;
     viderResultats();
-    ouvrirTrain(t, i >= 0 && !t.supprime ? i : null);
+    ouvrirTrain(t, i >= 0 && !t.supprime ? i : null, false);
   })));
   $("rien").hidden = l.length > 0;
 }
@@ -297,6 +340,9 @@ function ouvrirSansNum(ouvrir) {
 
 $("auj").addEventListener("click", () => setDate(null));
 $("date").addEventListener("change", () => setDate($("date").value));
+$("num").addEventListener("input", () => {
+  if ($("num-aide").hidden) { viderResultats(); aideRecherche(true); majURL(); }
+});
 $("form").addEventListener("submit", (e) => { e.preventDefault(); chercher($("num").value); });
 $("btn-sansnum").addEventListener("click", () => ouvrirSansNum($("sansnum").hidden));
 $("arr").addEventListener("input", rendreSansNum);
