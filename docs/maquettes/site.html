@@ -29,6 +29,7 @@
   #recherche[data-replie] + .sr + .resultats > #fiche { margin-top: 4px; }
   .resultats h2 + .liste { margin-top: 10px; }
 
+  #titre { margin-bottom: 20px; }
   /* Carte du train : la réponse, à la place du formulaire */
   .carte-train { background: var(--ink); color: var(--paper); border-radius: var(--r); padding: 16px 16px 18px;
                  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; align-items: start; }
@@ -66,7 +67,7 @@
 <body>
 <div class="badge-maquette">Maquette — données fictives. Essaie 6611 (aujourd'hui, puis hier), 7815, 17742, 3115, 4756, 6203 (hier).</div>
 <header class="top"><div class="in">
-  <a class="marque" href="site.html">traintracker</a>
+  <a class="marque" href="site.html">monretard.fr</a>
   <nav aria-label="Principale"><a href="site.html" aria-current="page">Mon train</a><a href="aujourdhui.html">Aujourd'hui</a><a href="#aide">Aide</a></nav>
 </div></header>
 
@@ -74,7 +75,6 @@
  <div class="col-g">
   <section id="recherche" aria-labelledby="titre">
     <h1 id="titre">Ton train était en retard&nbsp;? Vérifie ce que tu peux récupérer.</h1>
-    <p class="chapo">On calcule ton droit à la gare où tu es descendu, avec la règle de ton train.</p>
     <div id="formulaire">
       <form id="form" class="bloc" novalidate>
         <div class="dates" role="group" aria-label="Date du voyage">
