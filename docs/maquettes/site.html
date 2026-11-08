@@ -325,7 +325,8 @@ function montrerVerdict() {
   recu.innerHTML = `
     <p class="recu-titre">Ton verdict</p>
     <hr class="pointille">
-    <dl class="lignes"><div><dt>Statut</dt><dd>${esc(d.tampon)}</dd></div></dl>
+    ${d.ton === "none" ? `<dl class="lignes"><div><dt>Statut</dt><dd>${esc(d.tampon)}</dd></div></dl>`
+      : `<div class="tampon-zone"><span class="tampon-encre"><span class="sr">Statut : </span>${esc(d.tampon)}</span></div>`}
     <h2 class="verdict-titre" id="v-titre">${esc(d.titre)}</h2>
     <p class="verdict-texte">${esc(d.texte)}</p>
     ${d.pct ? `<p class="exemple">${exemple(d.pct)} Le montant dépend du prix que tu as payé.</p>` : ""}

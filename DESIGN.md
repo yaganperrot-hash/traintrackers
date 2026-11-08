@@ -141,7 +141,7 @@ Rejets confirmés par l'utilisateur : ne jamais ressembler à la SNCF (ni ses co
 - Bleu thermique réservé au droit ouvert, et à lui seul.
 - Mono tabulaire pour chaque chiffre et chaque ligne de reçu ; Public Sans pour tout le reste.
 - Retard toujours lu sur cinq paliers fixes (0, 30, 60, 120, 180 min).
-- Un seul mouvement auteur : la sortie du reçu.
+- Un seul mouvement auteur, en deux temps : le reçu sort de la fente, puis le tampon encré se pose (si un droit est ouvert).
 
 ## Colors
 
@@ -164,6 +164,8 @@ Une palette d'encre et de papier froid, où une seule couleur saturée a un sens
 
 ### Named Rules
 **La règle du bleu unique.** Le bleu thermique signifie « droit ouvert » et rien d'autre : pas de lien, pas de bouton, pas de bandeau, pas de décor. Un écran sans droit ouvert ne montre pas de bleu dans son contenu. L'anneau de focus, le curseur et la sélection sont à l'encre.
+
+**La règle de l'encre posée (validée par l'utilisateur le 2026-11-08).** Le papier thermique reste monochrome ; la couleur arrive *par-dessus*, comme un tampon sur un vrai reçu. Un droit ouvert reçoit un tampon encré bleu (« DROIT OUVERT », « AUTOMATIQUE » pour OUIGO) ; « Pas de droit » n'a jamais de tampon — c'est l'absence de couleur qui dit « pas cette fois », sans culpabiliser. Pas de vert, pas d'orange, pas de papier coloré.
 
 **La règle du fait et du droit.** Le rouge dit ce qui est arrivé au train ; le bleu dit ce que le voyageur peut récupérer. Un train supprimé affiche son « Supprimé » en rouge et son « Droit ouvert » en bleu, jamais l'un à la place de l'autre.
 
@@ -243,6 +245,7 @@ Encre pleine, directs, sans ornement.
 ### Le reçu (composant signature)
 La fente encre, puis le papier thermique qui en sort. En haut, l'en-tête de reçu centré ; puis des blocs de lignes étiquette / valeur en mono, séparés par des pointillés ; la ligne « STATUT » donne le résultat (« Droit ouvert », « Pas de droit », « Automatique ») ; puis le verdict en grand, son explication, un exemple chiffré, la règle appliquée, le CTA vers le formulaire officiel et, quand il y en a, les suites « Et maintenant ? » comme vrais boutons à l'intérieur du papier.
 - **Mouvement :** à l'apparition, le reçu glisse depuis la fente (`translateY(-100%)` vers 0, 0.7 s, `cubic-bezier(.16, 1, .3, 1)`). Désactivé sous `prefers-reduced-motion`.
+- **Tampon encré** (`.tampon-encre`, droit ouvert seulement) : texte `droit` 800, 15 px, capitales, interlettrage 0.1em ; double filet bleu (bordure 2.5 px + filet intérieur 1 px séparé de 2 px de papier), coins 6 px, voile bleu à 6 % ; incliné de −4°, aligné à droite juste au-dessus du montant, sans le chevaucher. Il remplace la ligne « Statut ». Apparition : 0.3 s après 0.55 s de délai, `scale(1.6)` → 1 avec opacité, `cubic-bezier(.2, .9, .3, 1.2)` ; coupé sous `prefers-reduced-motion`. Forme graphique plate : pas de texture de caoutchouc imitée.
 
 ### Paliers de retard
 Cinq barres égales de 8 px (écart 3 px) pour les seuils fixes 0, 30, 60, 120 et 180 min ; on allume toutes les barres jusqu'au palier atteint. Allumées en encre sous 30 min, en rouge alerte à partir de 30 min ; éteintes en gris trait. Dans le verdict, une légende mono 11 px nomme les seuils. Les paliers sont décoratifs pour les lecteurs d'écran (`aria-hidden`), le chiffre exact étant toujours écrit à côté.
@@ -257,7 +260,7 @@ Un seul papier sous une fente, découpé en bandes par des pointillés : ligne 1
 - **Do** écrire chaque chiffre et chaque ligne de reçu en JetBrains Mono tabulaire, et tout le reste en Public Sans.
 - **Do** lire tout retard sur les cinq paliers fixes 0 / 30 / 60 / 120 / 180 min, avec le chiffre exact à côté.
 - **Do** présenter un résultat comme un reçu : fente encre, papier thermique à bord cranté, lignes étiquette / valeur, pointillés, 460 px au plus.
-- **Do** garder la sortie du reçu comme seul mouvement auteur, et la couper sous `prefers-reduced-motion`.
+- **Do** garder la sortie du reçu (suivie du tampon) comme seul mouvement auteur, et la couper sous `prefers-reduced-motion`.
 - **Do** garder des cibles tactiles de 44 px au moins (48 px pour les boutons et champs principaux).
 - **Do** coller l'icône de lien externe au dernier mot du libellé.
 
