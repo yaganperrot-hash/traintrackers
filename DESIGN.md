@@ -154,7 +154,7 @@ Une palette d'encre et de papier froid, où une seule couleur saturée a un sens
 - **Encre** (`ink`) : texte principal, en-tête du site, boutons pleins, fente du reçu, paliers allumés sous 30 min.
 - **Encre douce** (`ink-2`) : texte secondaire, étiquettes du reçu, légendes, mentions de pied (7.6:1 sur le papier).
 - **Gris papier froid** (`ground`) : fond de page, le bureau sur lequel posent les reçus.
-- **Papier thermique** (`paper`) : reçus, lignes de train, champs, résumé de recherche, panneau d'aide.
+- **Papier thermique** (`paper`) : reçus, lignes de train, champs, panneau d'aide.
 - **Pointillé** (`rule`) : séparateurs en tirets du reçu et entre bandes de la pile.
 - **Trait** (`line`) : paliers éteints, bandeau de maquette.
 
@@ -193,7 +193,7 @@ Colonne unique, mobile d'abord (conçu à 390 px). Conteneur de page de 680 px a
 
 Rythme vertical : 4 px entre lignes de reçu, 8 à 12 px entre éléments d'une liste, 12 px de marge autour des pointillés, 20 à 28 px entre sections, 48 px en pied de page.
 
-Parcours : la recherche occupe le premier écran (champ du numéro et bouton « Vérifier » au-dessus de la ligne de flottaison) ; une fois le train trouvé, elle se replie en un résumé d'une ligne avec « Modifier », et le reçu prend la place. Le choix d'une gare fait défiler jusqu'au verdict et y place le focus.
+Parcours : la recherche occupe le premier écran (champ du numéro et bouton « Vérifier » au-dessus de la ligne de flottaison) ; elle reste en place une fois le train trouvé. **Règle de stabilité (demandée par l'utilisateur le 2026-11-08) : rien ne défile tout seul et rien ne disparaît au-dessus de ce qu'on vient de toucher.** Chaque réponse (train, gares, reçu) s'ajoute en dessous ; changer d'avis = cliquer un autre élément de la même liste, l'élément choisi garde un contour encre. Les lecteurs d'écran sont prévenus par une zone `aria-live` discrète. Date : bouton « Aujourd'hui » (par défaut) ou champ date affiché directement ; si rien n'est trouvé aujourd'hui, l'introuvable propose « Chercher hier ».
 
 ## Elevation & Depth
 
@@ -202,7 +202,7 @@ Système presque plat. La profondeur vient du papier posé sur le bureau gris (c
 ### Shadow Vocabulary
 - **Fente** (`box-shadow: 0 3px 6px rgba(0,0,0,.25)`) : sous la fente encre uniquement.
 - **Papier du reçu** (`box-shadow: 0 2px 8px rgba(30,31,36,.10)`) : le reçu posé.
-- **Papier au repos** (`box-shadow: 0 1px 2px rgba(30,31,36,.08)`) : lignes de train et résumé de recherche.
+- **Papier au repos** (`box-shadow: 0 1px 2px rgba(30,31,36,.08)`) : lignes de train.
 - **Survol** (`box-shadow: 0 0 0 1.5px var(--ink)`) : contour encre au survol d'une ligne cliquable ; 2 px pour la gare sélectionnée.
 
 ### Named Rules
@@ -216,11 +216,11 @@ Coins légèrement adoucis (6 px) pour tout ce qu'on touche : boutons, champs, l
 
 ### Buttons
 Encre pleine, directs, sans ornement.
-- **Shape :** coins adoucis (6 px), hauteur minimale 48 px (44 px dans le reçu et le résumé).
+- **Shape :** coins adoucis (6 px), hauteur minimale 48 px (44 px dans le reçu).
 - **Primary :** fond encre, texte papier, 700, 16 px ; 60 px de haut à côté du champ du numéro.
 - **Hover / Focus :** fond noir au survol ; anneau de focus de 3 px décalé de 2 px (blanc dans l'en-tête encre).
-- **Secondary :** fond transparent, contour encre intérieur de 1.5 px ; voile encre à 6 % au survol. Pour les suites (« Modifier », « Chercher par gare », « Et maintenant ? »).
-- **Lien-bouton :** texte 700 souligné, sans fond, 44 px de cible (« Je n'ai pas mon numéro de train », « Changer de gare »).
+- **Secondary :** fond transparent, contour encre intérieur de 1.5 px ; voile encre à 6 % au survol. Pour les suites (« Chercher hier », « Chercher par gare », « Et maintenant ? »).
+- **Lien-bouton :** texte 700 souligné, sans fond, 44 px de cible (« Je n'ai pas mon numéro de train »).
 - **Lien externe :** l'icône de sortie (SVG trait de 2 px, 1em) reste collée au dernier mot, jamais seule en début de ligne ; le CTA du verdict est pleine largeur, texte centré, et suivi de la mention « Tu quittes le site : on ne transmet rien ».
 
 ### Inputs / Fields

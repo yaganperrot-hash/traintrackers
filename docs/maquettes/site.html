@@ -10,33 +10,36 @@
 <link rel="stylesheet" href="style.css">
 <style>
   .form-num { display: flex; gap: 8px; flex-wrap: wrap; }
-  .form-num input { flex: 1 1 180px; height: 60px; padding: 0 14px; border: 2px solid var(--ink); border-radius: var(--r);
+  .form-num input { flex: 1 1 180px; width: 100%; height: 60px; padding: 0 14px; border: 2px solid var(--ink); border-radius: var(--r);
                     background: var(--paper); font-family: var(--mono); font-size: 26px; font-weight: 700; letter-spacing: .04em; }
   .form-num input::placeholder { color: #82868C; font-weight: 500; }
   .form-num .btn { flex: 0 0 auto; height: 60px; padding: 0 22px; font-size: 17px; }
   .bloc { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
-  .bloc .seg { justify-self: start; }
-  .form-num input { width: 100%; }
-  .resume { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: nowrap;
-            background: var(--paper); border-radius: var(--r); padding: 10px 10px 10px 14px; margin-top: 20px; box-shadow: 0 1px 2px rgba(30,31,36,.08); }
-  .resume .q { font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .resume .btn { min-height: 44px; font-size: 15px; flex: none; }
+  .dates { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+  .puce { min-height: 48px; padding: 0 18px; border: 0; border-radius: var(--r); background: transparent; font-weight: 700; font-size: 16px;
+          box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .puce[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .ou { color: var(--ink-2); font-weight: 600; }
+  .dates input[type="date"] { height: 48px; padding: 0 12px; border: 1.5px solid #9A9EA4; border-radius: var(--r); background: var(--paper); font-size: 16px; }
+  .dates input[type="date"].choisie { border: 2px solid var(--ink); font-weight: 700; }
   .sansnum { display: grid; gap: 12px; padding-top: 14px; border-top: 1.5px dashed var(--rule); }
   .grille2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-  .entete-train { margin: 28px 0 0; }
+  .resultats > section { margin-top: 28px; }
+  .resultats h2 + .liste, .resultats h2 + p { margin-top: 10px; }
   .entete-train p { margin: 4px 0 0; color: var(--ink-2); }
   .arrets { margin-top: 18px; }
   .arrets .aide-champ { margin: 4px 0 12px; }
   .arret { grid-template-columns: 1fr 112px; }
   .arret .paliers { grid-column: 2; margin: 4px 0 0; }
   .arret .r { grid-row: 1; }
-  .introuvable { background: var(--paper); border-radius: var(--r); padding: 18px; margin-top: 20px; }
+  .ligne[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--ink); }
+  .introuvable { background: var(--paper); border-radius: var(--r); padding: 18px; }
   .introuvable ul { margin: 10px 0 14px; padding-left: 20px; display: grid; gap: 4px; }
   .actions { display: flex; flex-wrap: wrap; gap: 8px; }
 </style>
 </head>
 <body>
-<div class="badge-maquette">Maquette — données fictives. Essaie 6611 (deux jours), 7815, 17742, 3115, 4756, 6203.</div>
+<div class="badge-maquette">Maquette — données fictives. Essaie 6611 (aujourd'hui, puis hier), 7815, 17742, 3115, 4756, 6203 (hier).</div>
 <header class="top"><div class="in">
   <a class="marque" href="site.html">traintracker</a>
   <nav aria-label="Principale"><a href="site.html" aria-current="page">Mon train</a><a href="aujourdhui.html">Aujourd'hui</a><a href="#aide">Aide</a></nav>
@@ -47,11 +50,11 @@
     <h1 id="titre">Ton train était en retard&nbsp;? Vérifie ce que tu peux récupérer.</h1>
     <p class="chapo">On calcule ton droit à la gare où tu es descendu, avec la règle de ton train.</p>
     <form id="form" class="bloc" novalidate>
-      <div class="seg" role="group" aria-label="Date du voyage">
-        <button type="button" data-date="48h" aria-pressed="true">Aujourd'hui ou hier</button>
-        <button type="button" data-date="autre" aria-pressed="false">Autre date</button>
+      <div class="dates" role="group" aria-label="Date du voyage">
+        <button type="button" class="puce" id="auj" aria-pressed="true">Aujourd'hui</button>
+        <span class="ou">ou le</span>
+        <input type="date" id="date" max="2026-11-08" aria-label="Choisir la date du voyage">
       </div>
-      <label class="champ" id="champ-date" hidden>Date du voyage<input type="date" id="date" max="2026-11-08"></label>
       <div class="champ">
         <label for="num">Numéro de ton train</label>
         <div class="form-num">
@@ -72,44 +75,43 @@
     </div>
   </section>
 
-  <div class="resume" id="resume" hidden>
-    <span class="q" id="resume-txt"></span>
-    <button type="button" class="btn btn-2" id="modifier">Modifier</button>
+  <p class="sr" id="statut" aria-live="polite"></p>
+
+  <div class="resultats">
+    <section id="choix" hidden aria-labelledby="choix-titre">
+      <h2 id="choix-titre">Plusieurs trains portent ce numéro. Lequel as-tu pris&nbsp;?</h2>
+      <ul class="liste" id="choix-liste"></ul>
+    </section>
+
+    <section class="introuvable" id="introuvable" hidden aria-labelledby="intro-titre">
+      <h2 id="intro-titre">On ne trouve pas ce train en retard</h2>
+      <ul>
+        <li>Il était peut-être <b>à l'heure</b> ce jour-là.</li>
+        <li>Vérifie le numéro : 4 à 6 chiffres, sur ton billet.</li>
+        <li>Les RER, métros et Transilien ne sont pas suivis ; Eurostar et Renfe pas encore.</li>
+      </ul>
+      <div class="actions">
+        <button type="button" class="btn btn-2" id="chercher-hier">Chercher hier</button>
+        <button type="button" class="btn btn-2" id="vers-sansnum">Chercher par gare</button>
+      </div>
+    </section>
+
+    <section id="fiche" hidden>
+      <div class="entete-train">
+        <h2 id="f-titre"></h2>
+        <p id="f-route"></p>
+      </div>
+      <div class="arrets" id="arrets">
+        <h2>Où es-tu descendu&nbsp;?</h2>
+        <p class="aide-champ">Ton droit dépend du retard à ta gare, pas au terminus.</p>
+        <ul class="liste" id="arrets-liste"></ul>
+      </div>
+      <div id="verdict" hidden>
+        <div class="fente" aria-hidden="true"></div>
+        <div class="recu-zone"><article class="recu" id="recu" aria-labelledby="v-titre"></article></div>
+      </div>
+    </section>
   </div>
-
-  <section id="choix" hidden aria-labelledby="choix-titre">
-    <h2 id="choix-titre" class="entete-train" tabindex="-1">Ce numéro a roulé deux jours. Lequel&nbsp;?</h2>
-    <ul class="liste" id="choix-liste" style="margin-top:12px"></ul>
-  </section>
-
-  <section class="introuvable" id="introuvable" hidden aria-labelledby="intro-titre">
-    <h2 id="intro-titre" tabindex="-1">On ne trouve pas ce train en retard</h2>
-    <ul>
-      <li>Il était peut-être <b>à l'heure</b> ce jour-là.</li>
-      <li>Vérifie le numéro : 4 à 6 chiffres, sur ton billet.</li>
-      <li>Les RER, métros et Transilien ne sont pas suivis ; Eurostar et Renfe pas encore.</li>
-    </ul>
-    <div class="actions">
-      <button type="button" class="btn btn-2" id="autre-date">Chercher à une autre date</button>
-      <button type="button" class="btn btn-2" id="vers-sansnum">Chercher par gare</button>
-    </div>
-  </section>
-
-  <section id="fiche" hidden>
-    <div class="entete-train">
-      <h2 id="f-titre" tabindex="-1"></h2>
-      <p id="f-route"></p>
-    </div>
-    <div class="arrets" id="arrets">
-      <h2>Où es-tu descendu&nbsp;?</h2>
-      <p class="aide-champ">Ton droit dépend du retard à ta gare, pas au terminus.</p>
-      <ul class="liste" id="arrets-liste"></ul>
-    </div>
-    <div id="verdict" hidden>
-      <div class="fente" aria-hidden="true"></div>
-      <div class="recu-zone"><article class="recu" id="recu" aria-labelledby="v-titre"></article></div>
-    </div>
-  </section>
 
   <details class="aide" id="aide">
     <summary>Comment on calcule ton droit</summary>
@@ -128,8 +130,19 @@
 <script src="donnees.js"></script>
 <script>
 "use strict";
+// Règle d'interaction : rien ne défile tout seul et rien ne disparaît au-dessus de ce qu'on vient de toucher.
+// Chaque réponse s'ajoute en dessous ; changer d'avis = cliquer un autre élément de la même liste.
 const $ = (id) => document.getElementById(id);
-const etat = { mode: "48h", train: null, arret: null };
+const etat = { train: null, arret: null };
+
+const dateChoisie = () => $("date").value || AUJOURDHUI;
+
+function setDate(d) {
+  const auj = !d || d === AUJOURDHUI;
+  $("date").value = auj ? "" : d;
+  $("date").classList.toggle("choisie", !auj);
+  $("auj").setAttribute("aria-pressed", auj);
+}
 
 function majURL() {
   const p = new URLSearchParams();
@@ -140,45 +153,42 @@ function majURL() {
   history.replaceState(null, "", p.toString() ? "?" + p : location.pathname);
 }
 
-function setMode(mode) {
-  etat.mode = mode;
-  document.querySelectorAll("[data-date]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.date === mode));
-  $("champ-date").hidden = mode !== "autre";
-}
+function annoncer(txt) { $("statut").textContent = txt; }
 
 function ligneTrain(t, onClick) {
   const li = document.createElement("li");
   const b = document.createElement("button");
-  b.type = "button"; b.className = "ligne";
+  b.type = "button"; b.className = "ligne"; b.setAttribute("aria-pressed", "false");
   const r = retardMax(t);
   b.innerHTML = `<span class="t">${esc(t.prod)} <span class="num">${esc(t.num)}</span> · ${esc(jourLabel(t.date))}</span>
     <span class="s">${esc(route(t))} · départ ${esc(t.h)}</span>
     <span class="r ${t.supprime || r >= 30 ? "alerte" : "attente"}">${t.supprime ? "Supprimé" : "+" + r + " min"}</span>`;
-  b.addEventListener("click", onClick);
+  b.addEventListener("click", () => {
+    b.closest("ul").querySelectorAll(".ligne").forEach((x) => x.setAttribute("aria-pressed", x === b));
+    onClick();
+  });
   li.appendChild(b);
   return li;
 }
 
-function cacherTout() { ["choix", "introuvable", "fiche", "resume"].forEach((id) => ($(id).hidden = true)); }
-
-function replier(texte) {
-  $("recherche").hidden = true;
-  $("resume").hidden = false;
-  $("resume-txt").textContent = texte;
+function viderResultats() {
+  ["choix", "introuvable", "fiche"].forEach((id) => ($(id).hidden = true));
+  etat.train = null; etat.arret = null;
 }
 
 function ouvrirTrain(t, arret = null) {
-  cacherTout();
   etat.train = t; etat.arret = arret;
-  replier(`Train ${t.num} · ${jourLabel(t.date)}`);
   $("fiche").hidden = false;
   $("f-titre").textContent = `${t.prod} ${t.num}`;
   $("f-route").textContent = `${route(t)}, ${jourLabel(t.date)}, départ ${t.h}. Cause annoncée : ${t.cause}.`;
-  if (t.supprime || arret !== null) { $("arrets").hidden = true; montrerVerdict(); }
-  else { $("arrets").hidden = false; rendreArrets(); $("verdict").hidden = true; }
+  if (t.supprime) { $("arrets").hidden = true; montrerVerdict(); }
+  else {
+    $("arrets").hidden = false; rendreArrets();
+    if (arret === null) $("verdict").hidden = true; else montrerVerdict();
+  }
   majURL();
-  $("f-titre").focus({ preventScroll: true });
-  $("fiche").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  annoncer(t.supprime ? `${t.prod} ${t.num} : supprimé. Ton verdict est affiché plus bas.`
+                      : `${t.prod} ${t.num} trouvé. Choisis plus bas la gare où tu es descendu.`);
 }
 
 function rendreArrets() {
@@ -188,16 +198,20 @@ function rendreArrets() {
     const b = document.createElement("button");
     b.type = "button"; b.className = "ligne arret";
     b.setAttribute("aria-pressed", etat.arret === i);
-    if (etat.arret === i) b.style.boxShadow = "0 0 0 2px var(--ink)";
     const n = indexPalier(r);
     b.innerHTML = `<span class="t">${esc(g)}</span><span class="r ${r >= 30 ? "alerte" : "attente"}">+${r} min</span>
       <span class="paliers ${r >= 30 ? "alerte" : ""}" aria-hidden="true">${[0, 1, 2, 3, 4].map((k) => `<i class="${k <= n ? "on" : ""}"></i>`).join("")}</span>`;
-    b.addEventListener("click", () => { etat.arret = i; $("arrets").hidden = true; montrerVerdict(true); majURL(); });
+    b.addEventListener("click", () => {
+      etat.arret = i;
+      ul.querySelectorAll(".ligne").forEach((x) => x.setAttribute("aria-pressed", x === b));
+      montrerVerdict(); majURL();
+      annoncer(`Verdict pour ${g} affiché plus bas.`);
+    });
     li.appendChild(b); ul.appendChild(li);
   });
 }
 
-function montrerVerdict(cadrer = false) {
+function montrerVerdict() {
   const t = etat.train;
   const g = t.supprime ? null : t.gares[etat.arret + 1];
   const r = g ? g[1] : 0;
@@ -218,7 +232,7 @@ function montrerVerdict(cadrer = false) {
       <div class="paliers-legende" aria-hidden="true"><span>0</span><span>30</span><span>60</span><span>120</span><span>180</span></div>` : ""}
     <hr class="pointille">
     <dl class="lignes"><div><dt>Statut</dt><dd>${esc(d.tampon)}</dd></div></dl>
-    <h2 class="verdict-titre" id="v-titre" tabindex="-1">${esc(d.titre)}</h2>
+    <h2 class="verdict-titre" id="v-titre">${esc(d.titre)}</h2>
     <p class="verdict-texte">${esc(d.texte)}</p>
     ${d.pct ? `<p class="exemple">${exemple(d.pct)} Le montant dépend du prix que tu as payé.</p>` : ""}
     <dl class="lignes">
@@ -231,41 +245,35 @@ function montrerVerdict(cadrer = false) {
     ${d.suite ? `<hr class="pointille"><div class="suite"><h3>Et maintenant&nbsp;?</h3><ul>${d.suite.map((s, k) => `<li><p>${esc(s.texte)}</p>${
       s.lien ? `<a class="btn btn-2" href="${s.lien}" target="_blank" rel="noopener">${libelleExt(s.action)}</a>`
              : `<button type="button" class="btn btn-2" data-suite="${k}">${esc(s.action)}</button>`}</li>`).join("")}</ul></div>` : ""}
-    ${g ? `<button type="button" class="lien" id="changer">Changer de gare</button>` : ""}`;
+    ${g ? `<p class="aide-champ" style="margin-top:12px">Pas la bonne gare ? Choisis-en une autre dans la liste au-dessus.</p>` : ""}`;
   $("verdict").hidden = false;
   recu.classList.remove("sort"); void recu.offsetWidth; recu.classList.add("sort");
-  recu.querySelectorAll("[data-suite]").forEach((b) => b.addEventListener("click", rouvrirRecherche));
-  const c = $("changer"); if (c) c.addEventListener("click", () => { etat.arret = null; $("verdict").hidden = true; $("arrets").hidden = false; rendreArrets(); majURL(); $("arrets").scrollIntoView({ block: "start" }); $("arrets").querySelector("button").focus({ preventScroll: true }); });
-  if (cadrer) {
-    $("verdict").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
-    $("v-titre").focus({ preventScroll: true });
-  }
+  // Chercher un autre train : action explicite, on ramène au champ numéro.
+  recu.querySelectorAll("[data-suite]").forEach((b) => b.addEventListener("click", () => {
+    viderResultats(); majURL(); $("num").value = ""; $("num").focus();
+  }));
 }
 
 function chercher(num, date) {
   num = (num || "").replace(/\D/g, "");
   $("num").value = num;
   if (!num) { $("num").focus(); return; }
-  let res;
-  if (date) res = TRAINS.filter((t) => t.num === num && t.date === date);
-  else if (etat.mode === "autre") res = TRAINS.filter((t) => t.num === num && t.date === $("date").value);
-  else res = TRAINS.filter((t) => t.num === num && (t.date === AUJOURDHUI || t.date === HIER));
-  cacherTout();
+  if (date) setDate(date);
+  const jour = dateChoisie();
+  const res = TRAINS.filter((t) => t.num === num && t.date === jour);
+  viderResultats();
   if (res.length === 1) return ouvrirTrain(res[0]);
   if (res.length > 1) {
-    replier(`Train ${num}`);
     const ul = $("choix-liste"); ul.replaceChildren();
     res.forEach((t) => ul.appendChild(ligneTrain(t, () => ouvrirTrain(t))));
-    $("choix").hidden = false; $("choix-titre").focus();
+    $("choix").hidden = false;
+    annoncer("Plusieurs trains portent ce numéro : choisis le tien plus bas.");
     return;
   }
-  replier(`${num} · ${etat.mode === "autre" ? ($("date").value || "date à choisir") : "aujourd'hui ou hier"}`);
-  $("introuvable").hidden = false; $("intro-titre").focus();
-}
-
-function rouvrirRecherche() {
-  cacherTout(); etat.train = null; etat.arret = null; majURL();
-  $("recherche").hidden = false; $("num").focus(); $("num").select();
+  $("intro-titre").textContent = `On ne trouve pas le train ${num} en retard ${jour === AUJOURDHUI ? "aujourd'hui" : jour === HIER ? "hier" : "le " + jour}`;
+  $("chercher-hier").hidden = jour !== AUJOURDHUI;
+  $("introuvable").hidden = false;
+  annoncer($("intro-titre").textContent);
 }
 
 function rendreSansNum() {
@@ -277,6 +285,7 @@ function rendreSansNum() {
     && (!dep || norm(t.gares[0][0]).includes(norm(dep))));
   l.forEach((t) => ul.appendChild(ligneTrain(t, () => {
     const i = arr ? t.gares.slice(1).findIndex(([g]) => norm(g).includes(norm(arr))) : -1;
+    viderResultats();
     ouvrirTrain(t, i >= 0 && !t.supprime ? i : null);
   })));
   $("rien").hidden = l.length > 0;
@@ -284,17 +293,16 @@ function rendreSansNum() {
 
 function ouvrirSansNum(ouvrir) {
   $("sansnum").hidden = !ouvrir; $("btn-sansnum").setAttribute("aria-expanded", ouvrir);
-  if (ouvrir) $("arr").focus();
 }
 
-document.querySelectorAll("[data-date]").forEach((b) => b.addEventListener("click", () => setMode(b.dataset.date)));
+$("auj").addEventListener("click", () => setDate(null));
+$("date").addEventListener("change", () => setDate($("date").value));
 $("form").addEventListener("submit", (e) => { e.preventDefault(); chercher($("num").value); });
-$("modifier").addEventListener("click", rouvrirRecherche);
 $("btn-sansnum").addEventListener("click", () => ouvrirSansNum($("sansnum").hidden));
 $("arr").addEventListener("input", rendreSansNum);
 $("dep").addEventListener("input", rendreSansNum);
-$("autre-date").addEventListener("click", () => { rouvrirRecherche(); setMode("autre"); $("date").focus(); });
-$("vers-sansnum").addEventListener("click", () => { rouvrirRecherche(); ouvrirSansNum(true); });
+$("chercher-hier").addEventListener("click", () => chercher($("num").value, HIER));
+$("vers-sansnum").addEventListener("click", () => { ouvrirSansNum(true); $("arr").focus(); });
 
 // « Aide » ouvre l'explication
 function ouvrirAide() { if (location.hash === "#aide") $("aide").open = true; }
@@ -304,8 +312,10 @@ addEventListener("hashchange", ouvrirAide); ouvrirAide();
 (function depuisURL() {
   const p = new URLSearchParams(location.search);
   if (!p.get("train")) return;
-  const t = TRAINS.find((x) => x.num === p.get("train") && x.date === p.get("date"));
-  if (!t) return chercher(p.get("train"));
+  const num = p.get("train").replace(/\D/g, "");
+  const t = TRAINS.find((x) => x.num === num && x.date === p.get("date"));
+  if (!t) return chercher(num, p.get("date") || undefined);
+  $("num").value = num; setDate(t.date);
   const i = p.get("gare") ? t.gares.slice(1).findIndex(([g]) => g === p.get("gare")) : -1;
   ouvrirTrain(t, i >= 0 ? i : null);
 })();
