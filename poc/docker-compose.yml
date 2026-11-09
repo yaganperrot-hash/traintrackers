@@ -1,0 +1,13 @@
+# VPS : cd ~/monretard && docker compose up -d --build
+# Indépendant de rertracker (projet compose séparé, aucun réseau ni volume partagé).
+name: monretard
+services:
+  collecte:
+    build: .
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/poc/data
+    logging:
+      driver: json-file
+      options: { max-size: "5m", max-file: "2" }
+    mem_limit: 256m

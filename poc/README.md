@@ -16,4 +16,19 @@ Start-Process venv\Scripts\python.exe poc\collect.py -WindowStyle Hidden -PassTh
 Stop-Process -Id (Get-Content poc\data\collect.pid)                                  # arrêter
 ```
 
-Données brutes dans `poc/data/` (gitignored), environ 200 Mo par jour.
+## Sur le VPS (depuis le 2026-11-09)
+
+La collecte tourne sur le VPS de rertracker, dans son propre projet Docker (`~/monretard/`),
+sans rien partager avec rertracker. Elle redémarre seule (`restart: unless-stopped`).
+
+```bash
+# déployer / mettre à jour (depuis poc/)
+tar cf - Dockerfile docker-compose.yml .dockerignore collect.py analyse.py regions.py requirements.txt \
+  | ssh ubuntu@149.56.102.94 "mkdir -p ~/monretard/data && tar xf - -C ~/monretard && cd ~/monretard && docker compose up -d --build"
+ssh ubuntu@149.56.102.94 "cd ~/monretard && docker compose logs --tail 20"          # suivre
+ssh ubuntu@149.56.102.94 "cd ~/monretard && docker compose exec collecte python analyse.py"   # rapports dans data/
+```
+
+Données brutes dans `data/` (gitignored). Mesuré sur PC : ~200 Mo par jour complet, dont plus de la
+moitié en Service Alerts — désormais stockées seulement quand elles changent. Fichiers bruts et GTFS
+effacés au-delà de 7 jours (`--garder-jours`), journal plafonné (3 × 5 Mo).

@@ -40,6 +40,9 @@ opérateurs concurrents et des trains internationaux. → Prototype du flux en p
   APScheduler, front vanilla, Docker). On reprend sa base de calcul en l'adaptant.
 - **2026-11-07 — Hébergement** : local pour l'instant, puis OVH. VPS de rertracker ou nouveau VPS
   selon la consommation mesurée.
+- **2026-11-09 — Collecte du POC sur le VPS de rertracker** : le PC ne peut pas tourner jour et nuit (veille
+  → journées incomplètes). Projet Docker séparé `~/monretard/`, rien de partagé avec rertracker. VPS :
+  38 Go (31 libres), 3,7 Go de RAM. Avance une partie du jalon 7 ; site et base restent à venir.
 - **2026-11-07 — Historique long** : conservé pour alimenter des statistiques sur le site et dans les
   posts. Niveau de détail stocké (brut ou agrégé) à décider après les mesures du prototype.
 - **2026-11-07 — Publication manuelle** : l'API X est payante (aucune offre gratuite pour un nouveau
@@ -79,4 +82,4 @@ opérateurs concurrents et des trains internationaux. → Prototype du flux en p
 ## Questions ouvertes
 - Réserver monretard.fr ; vérifier la marque (INPI) et les noms de comptes X / Instagram.
 - Couverture du flux pour Ouigo, les opérateurs concurrents et les trains internationaux.
-- Volume de stockage par jour → choix du VPS.
+- Volume en base par jour (à mesurer au jalon 3) ; le VPS de rertracker suffit pour la collecte.

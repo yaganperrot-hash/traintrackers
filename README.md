@@ -12,7 +12,7 @@ Le projet renvoie vers les formulaires officiels ; il ne dépose aucune demande 
 aucune donnée personnelle.
 
 ## Statut
-Jalon 1 en cours : prototype du flux temps réel SNCF (collecte en cours, voir `poc/README.md`).
+Jalon 1 en cours : prototype du flux temps réel SNCF (collecte sur le VPS, voir `poc/README.md`).
 
 ## Stack
 Python 3.12 · FastAPI · PostgreSQL 16 · SQLAlchemy 2.x async · APScheduler · HTML/CSS/JS vanilla · Docker
@@ -44,13 +44,16 @@ L'application complète (prévue : `cp .env.example .env`, puis `docker-compose 
 │   ├── regles-remboursement.md  # veille des règles (validé le 2026-11-07)
 │   └── maquettes/       # maquettes « Le reçu », données fictives
 │       ├── site.html        # recherche d'un train → verdict
-│       ├── aujourdhui.html  # bilan du jour
+│       ├── aujourdhui.html  # trains qui ouvrent un droit aujourd'hui
+│       ├── publications.html # page interne : post du soir (Instagram, X)
+│       ├── serveur.py       # serveur local à rechargement auto (127.0.0.1:8000)
 │       ├── style.css        # styles partagés
 │       └── donnees.js       # trains fictifs + règles simplifiées
 ├── poc/                 # prototype du flux (jalon 1)
 │   ├── collect.py       # collecte GTFS-RT toutes les 2 min
 │   ├── analyse.py       # rapport par jour
 │   ├── regions.py       # gares et TER → région
+│   ├── Dockerfile, docker-compose.yml  # collecte sur le VPS (~/monretard/)
 │   └── data/            # relevés bruts (gitignored)
 ├── venv/                # environnement Python (gitignored)
 ├── memory/
