@@ -26,6 +26,18 @@ exonération si circonstances extraordinaires extérieures à l'exploitation (m�
 crise sanitaire majeure, faute du voyageur, certains tiers) — **la grève du personnel de l'opérateur
 n'exonère pas**. Les garanties commerciales (G30, Trenitalia 30–59 min) vont au-delà.
 
+## Vérification du 2026-11-10 (SNCF Connect, page mise à jour le 2026-11-10)
+
+Source : https://www.sncf-connect.com/aide/retard-de-votre-train-et-remboursement
+- ✅ **G30 national** confirmé : 30 min–2 h 25 % · 2–3 h 50 % · > 3 h 75 % ; 30 min–1 h bon d'achat,
+  > 1 h virement (bon seulement si choisi expressément). Nouveau : MAX JEUNE, bon de 5 € dès 30 min.
+- ✅ **TGV INOUI international** confirmé : 25 % puis 50 % dès 2 h, pas de palier au-delà.
+- ✅ **OUIGO** seuils confirmés (1 h : 25 %, 2 h : 50 %, automatique, 15 j). ⚠️ **Forme contradictoire** :
+  la page dit « versée en numéraire, bons si acceptés expressément » ; les CGTV V71 disent « bon d'achat
+  remboursable ». Le code n'affiche pas la forme (« versé automatiquement ») : sans effet sur le verdict.
+- ⚠️ **G30 délai de 90 j** : absent de cette page. Reste à confirmer.
+- ⚠️ **Train supprimé (TGV INOUI / Intercités)** : la page n'en parle pas. Reste à confirmer.
+
 ## Points qui changent la conception — à trancher
 
 1. **Le retard se mesure à l'arrivée du voyageur, pas au terminus du train.** Un voyageur qui
