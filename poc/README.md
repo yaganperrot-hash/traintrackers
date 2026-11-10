@@ -19,14 +19,14 @@ Stop-Process -Id (Get-Content poc\data\collect.pid)                             
 ## Sur le VPS (depuis le 2026-11-09)
 
 La collecte tourne sur le VPS de rertracker, dans son propre projet Docker (`~/monretard/`),
-sans rien partager avec rertracker. Elle redémarre seule (`restart: unless-stopped`).
+sans rien partager avec rertracker. Elle redémarre seule. Depuis le 2026-11-10, elle est déployée
+avec la base et le site par `deploy/docker-compose.yml` (voir `deploy/`).
 
 ```bash
-# déployer / mettre à jour (depuis poc/)
-tar cf - Dockerfile docker-compose.yml .dockerignore collect.py analyse.py regions.py requirements.txt \
-  | ssh ubuntu@149.56.102.94 "mkdir -p ~/monretard/data && tar xf - -C ~/monretard && cd ~/monretard && docker compose up -d --build"
-ssh ubuntu@149.56.102.94 "cd ~/monretard && docker compose logs --tail 20"          # suivre
-ssh ubuntu@149.56.102.94 "cd ~/monretard && docker compose exec collecte python analyse.py"   # rapports dans data/
+# déployer / mettre à jour (depuis la racine du dépôt)
+tar cf - requirements.txt pytest.ini backend tests frontend deploy poc/collect.py poc/analyse.py poc/regions.py   | ssh ubuntu@149.56.102.94 "tar xf - -C ~/monretard && cd ~/monretard/deploy && docker compose up -d --build"
+ssh ubuntu@149.56.102.94 "cd ~/monretard/deploy && docker compose logs --tail 20 collecte"         # suivre
+ssh ubuntu@149.56.102.94 "cd ~/monretard/deploy && docker compose exec collecte python poc/analyse.py"  # rapports dans data/
 ```
 
 Données brutes dans `data/` (gitignored). Mesuré sur PC : ~200 Mo par jour complet, dont plus de la
