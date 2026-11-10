@@ -43,6 +43,12 @@ opérateurs concurrents et des trains internationaux. → Prototype du flux en p
 - **2026-11-09 — Collecte du POC sur le VPS de rertracker** : le PC ne peut pas tourner jour et nuit (veille
   → journées incomplètes). Projet Docker séparé `~/monretard/`, rien de partagé avec rertracker. VPS :
   38 Go (31 libres), 3,7 Go de RAM. Avance une partie du jalon 7 ; site et base restent à venir.
+- **2026-11-10 — Base de données (jalon 3, zone critique validée)** : on stocke des faits, pas des
+  verdicts (droits recalculés à l'affichage par `backend/regles.py`). Tables `circulations` (train × jour),
+  `passages` (train × gare, dernier retard annoncé), `gares`, `collectes`. Transilien et cars exclus.
+  Conservation illimitée (≈ 2 Go/an estimés, à mesurer). Postgres dans son propre conteneur
+  (`deploy/docker-compose.yml`), mot de passe dans `deploy/.env` sur le serveur seulement. Ingestion des
+  relevés bruts toutes les 30 s (`backend/ingestion.py`), rejouable sur les 7 jours de fichiers gardés.
 - **2026-11-07 — Historique long** : conservé pour alimenter des statistiques sur le site et dans les
   posts. Niveau de détail stocké (brut ou agrégé) à décider après les mesures du prototype.
 - **2026-11-07 — Publication manuelle** : l'API X est payante (aucune offre gratuite pour un nouveau

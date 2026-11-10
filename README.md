@@ -38,8 +38,13 @@ L'application complète (prévue : `cp .env.example .env`, puis `docker-compose 
 │   └── DEBUG.md         # bugs en cours / résolus
 ├── backend/
 │   ├── regles.py        # règles d'éligibilité au remboursement (zone critique)
-│   └── marques.py       # marque et région des TER à garantie, par ligne GTFS (zone critique)
-├── tests/               # pytest (test_regles.py, test_marques.py)
+│   ├── marques.py       # marque et région des TER à garantie, par ligne GTFS (zone critique)
+│   ├── flux.py          # lecture du flux temps réel (retards, suppressions, causes)
+│   ├── referentiel.py   # gares, régions et lignes tirées du GTFS théorique
+│   ├── base.py          # schéma et écritures PostgreSQL (zone critique)
+│   ├── ingestion.py     # relevés bruts → base, toutes les 30 s
+│   └── ref/regions.geojson  # contours des régions (france-geojson)
+├── tests/               # pytest ; test_base.py tourne sur le VPS (vraie base)
 ├── docs/
 │   ├── regles-remboursement.md  # veille des règles (validé le 2026-11-07)
 │   └── maquettes/       # maquettes « Le reçu », données fictives
@@ -49,6 +54,7 @@ L'application complète (prévue : `cp .env.example .env`, puis `docker-compose 
 │       ├── serveur.py       # serveur local à rechargement auto (127.0.0.1:8000)
 │       ├── style.css        # styles partagés
 │       └── donnees.js       # trains fictifs + règles simplifiées
+├── deploy/              # Docker du serveur : collecte, Postgres, ingestion (VPS ~/monretard/)
 ├── poc/                 # prototype du flux (jalon 1)
 │   ├── collect.py       # collecte GTFS-RT toutes les 2 min
 │   ├── analyse.py       # rapport par jour
