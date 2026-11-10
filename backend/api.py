@@ -15,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func, select
 
 from backend import base
+from backend import regles as R
 from backend.regles import Droit, Statut, evaluer
 
 PARIS = ZoneInfo("Europe/Paris")
@@ -25,7 +26,11 @@ NOMS = {"OUI": "TGV INOUI", "OGO": "OUIGO", "IC": "Intercités", "IC*": "Interci
         "LYR": "Lyria", "ICE": "ICE", "TER": "TER", "TER*": "TER", "TT": "Tram-train", "NAV": "Navette",
         "TRN": "Trenitalia"}
 NOMS_MARQUE = {"NOMAD_RESA": "TER Krono+", "REMI_EXPRESS": "Rémi Express", "REMI": "Rémi"}
-RANG = {Statut.REMBOURSEMENT: 3, Statut.AUTOMATIQUE: 2, Statut.DROIT: 1}
+NOMS_REGLE = {b.regle: b.nom for b in (R.G30, R.G30_INTERNATIONAL, R.OUIGO, R.TRENITALIA, R.EUROSTAR,
+                                        R.PLANCHER_UE, R.NOMAD_RESA, R.REMI_EXPRESS)}
+NOMS_REGLE.update({"SUPPRESSION": "Train supprimé", "TER_CVL_REMI": "Rémi (Centre-Val de Loire)",
+                   "TER_PDL_SUPPRESSION": "Aléop (Pays de la Loire)", "TER_GRAND_EST": "TER Grand Est",
+                   "TER_SANS_GARANTIE": "TER", "INCONNU": "Type de train inconnu"})
 
 
 def nom_train(produit: str, marque: str | None) -> str:
@@ -37,7 +42,7 @@ def heure(dt: datetime | None) -> str | None:
 
 
 def droit_json(d: Droit) -> dict:
-    return {"statut": d.statut.value, "regle": d.regle, "message": d.message, "pourcentage": d.pourcentage,
+    return {"statut": d.statut.value, "regle": d.regle, "regle_nom": NOMS_REGLE.get(d.regle, d.regle), "message": d.message, "pourcentage": d.pourcentage,
             "forme": d.forme, "lien": d.lien, "a_confirmer": d.a_confirmer, "source": d.source}
 
 
@@ -113,29 +118,61 @@ async def aujourdhui(jour: date | None = None):
     return reponse
 
 
+async def _details(cx, circs) -> list[dict]:
+    """Trains complets : gares, retard à chacune, droit d'un voyageur qui y descend."""
+    p_ = base.passages.c
+    sortie = []
+    for c in circs:
+        ps = (await cx.execute(select(base.passages).where(p_.circulation_id == c.id).order_by(p_.ordre))).all()
+        noms = await _gares(cx, {p.gare for p in ps})
+        gares = [{"uic": p.gare, "nom": noms.get(p.gare, p.gare), "arrivee": heure(p.arrivee_prevue),
+                  "retard_min": None if p.retard_s is None else p.retard_s // 60, "saute": p.saute,
+                  "droit": None if p.ordre == 0 and p.retard_s is None else droit_json(droit_a(c, p.retard_s))}
+                 for p in ps]
+        sortie.append({"numero": c.numero, "produit": c.produit, "nom": nom_train(c.produit, c.marque),
+                       "jour": c.jour.isoformat(), "depart": heure(c.depart_prevu), "supprime": c.supprimee,
+                       "cause": c.cause, "region": c.region,
+                       "droit_suppression": droit_json(droit_a(c, None)) if c.supprimee else None,
+                       "derniere_annonce": heure(c.derniere_annonce), "gares": gares})
+    return sortie
+
+
 @app.get("/api/train")
 async def train(numero: str = Query(pattern=r"^\d{1,6}$"), jour: date | None = None):
-    """Un train un jour donné : ses gares, le retard à chacune et le droit d'un voyageur qui y descend."""
+    """Un train un jour donné (plusieurs circulations possibles sous un même numéro)."""
     jour = jour or datetime.now(PARIS).date()
-    c_, p_ = base.circulations.c, base.passages.c
+    c_ = base.circulations.c
     async with app.state.engine.connect() as cx:
         circs = (await cx.execute(select(base.circulations).where(c_.jour == jour, c_.numero == numero))).all()
         if not circs:
             raise HTTPException(404, "Train introuvable ce jour-là")
-        sortie = []
-        for c in circs:
-            ps = (await cx.execute(select(base.passages).where(p_.circulation_id == c.id).order_by(p_.ordre))).all()
-            noms = await _gares(cx, {p.gare for p in ps})
-            gares = [{"uic": p.gare, "nom": noms.get(p.gare, p.gare), "arrivee": heure(p.arrivee_prevue),
-                      "retard_min": None if p.retard_s is None else p.retard_s // 60, "saute": p.saute,
-                      "droit": None if p.ordre == 0 and p.retard_s is None else droit_json(droit_a(c, p.retard_s))}
-                     for p in ps]
-            sortie.append({"numero": c.numero, "produit": c.produit, "nom": nom_train(c.produit, c.marque),
-                           "jour": c.jour.isoformat(), "depart": heure(c.depart_prevu), "supprime": c.supprimee,
-                           "cause": c.cause, "region": c.region,
-                           "droit_suppression": droit_json(droit_a(c, None)) if c.supprimee else None,
-                           "derniere_annonce": heure(c.derniere_annonce), "gares": gares})
-    return {"trains": sortie}
+        return {"trains": await _details(cx, circs)}
+
+
+def _motif(texte: str) -> str:
+    """Motif ILIKE « contient », sans laisser passer les jokers % et _ du visiteur."""
+    return "%" + texte.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
+
+
+@app.get("/api/recherche")
+async def recherche(arrivee: str = Query("", max_length=60), depart: str = Query("", max_length=60)):
+    """Sans numéro : trains d'aujourd'hui et d'hier en retard (≥ 1 min) ou supprimés, par gares."""
+    arrivee, depart = arrivee.strip(), depart.strip()
+    if len(arrivee) < 2 and len(depart) < 2:
+        return {"trains": []}
+    auj = datetime.now(PARIS).date()
+    jours = [auj, date.fromordinal(auj.toordinal() - 1)]
+    c_, p_, g_ = base.circulations.c, base.passages.c, base.gares.c
+    q = select(base.circulations).where(c_.jour.in_(jours), c_.produit != "?", c_.numero.is_not(None))
+    if len(arrivee) >= 2:
+        q = q.where(c_.id.in_(select(p_.circulation_id).join(base.gares, g_.uic == p_.gare)
+                              .where(g_.nom.ilike(_motif(arrivee), escape="\\"), p_.ordre > 0)))
+    if len(depart) >= 2:
+        q = q.where(c_.origine.in_(select(g_.uic).where(g_.nom.ilike(_motif(depart), escape="\\"))))
+    q = q.where(c_.supprimee | c_.id.in_(select(p_.circulation_id).where(p_.retard_s >= 60)))
+    async with app.state.engine.connect() as cx:
+        circs = (await cx.execute(q.order_by(c_.jour.desc(), c_.depart_prevu).limit(20))).all()
+        return {"trains": await _details(cx, circs)}
 
 
 if FRONTEND.is_dir():

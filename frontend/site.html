@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mon train · monretard.fr</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  html { overflow-anchor: none; } /* on compense nous-mêmes, pour que la gare touchée reste sous le doigt */
+  .form-num { display: flex; gap: 8px; flex-wrap: wrap; }
+  .form-num input { flex: 1 1 180px; width: 100%; height: 60px; padding: 0 14px; border: 2px solid var(--ink); border-radius: var(--r);
+                    background: var(--paper); font-family: var(--mono); font-size: 26px; font-weight: 700; letter-spacing: .04em; }
+  .form-num input::placeholder { color: #82868C; font-weight: 500; }
+  .form-num .btn { flex: 0 0 auto; height: 60px; padding: 0 22px; font-size: 17px; }
+  .bloc { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+  .dates { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+  .puce { min-height: 48px; padding: 0 18px; border: 0; border-radius: var(--r); background: transparent; font-weight: 700; font-size: 16px;
+          box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .puce[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .ou { color: var(--ink-2); font-weight: 600; }
+  .dates input[type="date"] { height: 48px; padding: 0 12px; border: 1.5px solid #9A9EA4; border-radius: var(--r); background: var(--paper); font-size: 16px; }
+  .dates input[type="date"].choisie { border: 2px solid var(--ink); font-weight: 700; }
+  .sansnum { display: grid; gap: 12px; padding-top: 14px; border-top: 1.5px dashed var(--rule); }
+  .grille2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .resultats > section { margin-top: 24px; }
+  #recherche[data-replie] + .sr + .resultats > #fiche { margin-top: 4px; }
+  .resultats h2 + .liste { margin-top: 10px; }
+
+  #titre { margin-bottom: 20px; }
+  /* Carte du train : la réponse, à la place du formulaire */
+  .carte-train { background: var(--ink); color: var(--paper); border-radius: var(--r); padding: 16px 16px 18px;
+                 display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; align-items: start; }
+  .carte-train h2 { font-size: 24px; letter-spacing: -0.01em; }
+  .carte-train p { grid-column: 1 / -1; margin: 0; color: #D5D8DC; font-size: 15px; }
+  .carte-train .trajet { color: var(--paper); font-weight: 600; font-size: 16px; }
+  .carte-train .btn { min-height: 44px; font-size: 15px; background: transparent; color: var(--paper); box-shadow: inset 0 0 0 1.5px var(--paper); }
+  .carte-train .btn:hover { background: rgba(250,251,252,.12); }
+  .carte-train :focus-visible { outline-color: var(--paper); }
+  .carte-train .etat-supp { color: #FFB4AB; font-weight: 700; }
+
+  .arrets { margin-top: 20px; }
+  .arrets .aide-champ { margin: 4px 0 12px; }
+  .arret { grid-template-columns: 1fr 112px; }
+  .arret .paliers { grid-column: 2; margin: 4px 0 0; }
+  .arret .r { grid-row: 1; }
+  .ligne[aria-pressed="true"], .ligne[aria-expanded="true"] { box-shadow: 0 0 0 2px var(--ink); }
+  .arrets-liste .fente, .fiche-supp .fente { margin-top: 10px; }
+  .recu-pied { display: flex; justify-content: flex-end; margin-top: 8px; }
+  .introuvable { background: var(--paper); border-radius: var(--r); padding: 18px; }
+  .introuvable ul { margin: 10px 0 14px; padding-left: 20px; display: grid; gap: 4px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  /* PC : le reçu s'imprime dans une colonne à droite, toujours à l'écran */
+  .col-d { display: none; }
+  @media (min-width: 960px) {
+    .top .in, .page { max-width: 1040px; }
+    .cols { display: grid; grid-template-columns: minmax(0, 1fr) 460px; gap: 40px; align-items: start; }
+    .col-d { display: block; padding-top: 28px; }
+    .col-d .arrets { margin-top: 0; }
+    .arrets-tete { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="badge-maquette">Aperçu — données réelles SNCF, règles encore en vérification.</div>
+<header class="top"><div class="in">
+  <a class="marque" href="site.html">monretard.fr</a>
+  <nav aria-label="Principale"><a href="site.html" aria-current="page">Mon train</a><a href="aujourdhui.html">Aujourd'hui</a><a href="#aide">Aide</a></nav>
+</div></header>
+
+<main class="page"><div class="cols">
+ <div class="col-g">
+  <section id="recherche" aria-labelledby="titre">
+    <h1 id="titre">Ton train était en retard&nbsp;? Vérifie ce que tu peux récupérer.</h1>
+    <div id="formulaire">
+      <form id="form" class="bloc" novalidate>
+        <div class="dates" role="group" aria-label="Date du voyage">
+          <button type="button" class="puce" id="auj" aria-pressed="true">Aujourd'hui</button>
+          <span class="ou">ou le</span>
+          <input type="date" id="date" aria-label="Choisir la date du voyage">
+        </div>
+        <div class="champ">
+          <label for="num">Numéro de ton train</label>
+          <div class="form-num">
+            <input id="num" name="train" inputmode="numeric" autocomplete="off" placeholder="6611" aria-describedby="num-aide">
+            <button class="btn" type="submit">Vérifier</button>
+          </div>
+          <p class="aide-champ" id="num-aide">Sur ton billet ou ton e-billet, à côté de l'heure de départ.</p>
+        </div>
+      </form>
+      <button type="button" class="lien" id="btn-sansnum" aria-expanded="false" aria-controls="sansnum">Je n'ai pas mon numéro de train</button>
+      <div class="sansnum" id="sansnum" hidden>
+        <div class="grille2">
+          <label class="champ">Gare où tu es descendu<input id="arr" placeholder="Marseille" autocomplete="off"></label>
+          <label class="champ">Gare de départ (facultatif)<input id="dep" placeholder="Paris" autocomplete="off"></label>
+        </div>
+        <ul class="liste" id="trouves"></ul>
+        <p class="aide-champ" id="rien" hidden>Aucun train en retard ou supprimé ne correspond, aujourd'hui ou hier.</p>
+        <p class="aide-champ" id="cherche-gares" hidden>Recherche…</p>
+      </div>
+    </div>
+  </section>
+
+  <p class="sr" id="statut" aria-live="polite"></p>
+
+  <div class="resultats">
+    <section id="choix" hidden aria-labelledby="choix-titre">
+      <h2 id="choix-titre">Plusieurs trains portent ce numéro. Lequel as-tu pris&nbsp;?</h2>
+      <ul class="liste" id="choix-liste"></ul>
+    </section>
+
+    <section class="introuvable" id="introuvable" hidden aria-labelledby="intro-titre">
+      <h2 id="intro-titre">On ne trouve pas ce train en retard</h2>
+      <ul>
+        <li>Il était peut-être <b>à l'heure</b> ce jour-là.</li>
+        <li>Vérifie le numéro : 4 à 6 chiffres, sur ton billet.</li>
+        <li>Les RER, métros et Transilien ne sont pas suivis ; Eurostar et Renfe pas encore.</li>
+        <li>Le suivi a commencé le 9 novembre 2026 : rien avant.</li>
+      </ul>
+      <div class="actions">
+        <button type="button" class="btn btn-2" id="chercher-hier">Chercher hier</button>
+        <button type="button" class="btn btn-2" id="vers-sansnum">Chercher par gare</button>
+      </div>
+    </section>
+
+    <section id="fiche" hidden aria-labelledby="f-titre">
+      <div class="carte-train" id="carte">
+        <h2 id="f-titre"></h2>
+        <button type="button" class="btn" id="modifier">Modifier</button>
+        <p class="trajet" id="f-trajet"></p>
+        <p id="f-quand"></p>
+        <p id="f-cause"></p>
+      </div>
+      <div class="fiche-supp" id="ancre-supp"></div>
+      <div class="arrets" id="arrets">
+        <div class="arrets-tete"><h2 id="arrets-titre">Où es-tu descendu&nbsp;?</h2>
+          <button type="button" class="lien" id="changer-gare" hidden>Changer de gare</button></div>
+        <p class="aide-champ" id="arrets-aide">Ton droit dépend du retard à ta gare, pas au terminus.</p>
+        <ul class="liste arrets-liste" id="arrets-liste"></ul>
+      </div>
+      <div id="verdict" hidden role="region" aria-label="Ton verdict">
+        <div class="fente" aria-hidden="true"></div>
+        <div class="recu-zone"><article class="recu" id="recu" aria-labelledby="v-titre"></article></div>
+      </div>
+    </section>
+  </div>
+
+  <details class="aide" id="aide">
+    <summary>Comment on calcule ton droit</summary>
+    <ul>
+      <li><b>TGV INOUI, Intercités</b> (garantie G30) : dès 30 min, 25 % du billet ; 50 % dès 2 h ; 75 % dès 3 h. Bon d'achat sous 1 h de retard, virement au-delà.</li>
+      <li><b>OUIGO</b> : dès 1 h, 25 % ; 50 % dès 2 h. Automatique : OUIGO t'écrit.</li>
+      <li><b>TER</b> : ça dépend de la région. La plupart ne dédommagent pas un billet à l'unité.</li>
+      <li>On affiche des pourcentages : le montant dépend du prix que tu as payé.</li>
+      <li>Train supprimé : tu peux demander le remboursement intégral de ton billet.</li>
+    </ul>
+  </details>
+  <p class="pied">Données SNCF Voyageurs en open data (ODbL), via transport.data.gouv.fr. Site indépendant, sans lien avec la SNCF.
+    On ne fait pas la demande à ta place et on ne collecte aucune donnée personnelle.</p>
+ </div>
+ <aside class="col-d" id="col-recu" aria-label="Ta gare"></aside>
+</div></main>
+
+<script src="donnees.js"></script>
+<script>
+"use strict";
+// Règles d'interaction :
+// - rien ne défile tout seul ; la gare touchée reste sous le doigt ;
+// - une fois trouvé, le train remplace le formulaire (pas de doublon) ;
+// - téléphone : le reçu s'ouvre sous la gare touchée ; PC : gares à droite (haut d'écran), reçu à gauche sous la carte du train.
+const $ = (id) => document.getElementById(id);
+const etat = { train: null, arret: null, depuisGare: false };
+const PC = matchMedia("(min-width: 960px)");
+
+$("date").max = AUJOURDHUI;
+$("date").min = "2026-11-09";
+const dateChoisie = () => $("date").value || AUJOURDHUI;
+
+function setDate(d) {
+  const auj = !d || d === AUJOURDHUI;
+  $("date").value = auj ? "" : d;
+  $("date").classList.toggle("choisie", !auj);
+  $("auj").setAttribute("aria-pressed", auj);
+}
+
+function majURL() {
+  const p = new URLSearchParams();
+  if (etat.train) {
+    p.set("train", etat.train.num); p.set("date", etat.train.date);
+    if (etat.arret !== null) p.set("gare", etat.train.gares[etat.arret + 1][0]);
+  }
+  history.replaceState(null, "", p.toString() ? "?" + p : location.pathname);
+}
+
+function annoncer(txt) { $("statut").textContent = txt; }
+
+function ligneTrain(t, onClick) {
+  const li = document.createElement("li");
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "ligne"; b.setAttribute("aria-pressed", "false");
+  const r = retardMax(t);
+  b.innerHTML = `<span class="t">${esc(t.prod)} <span class="num">${esc(t.num)}</span> · ${esc(jourLabel(t.date))}</span>
+    <span class="s">${esc(route(t))} · départ ${esc(t.h)}</span>
+    <span class="r ${t.supprime || r >= 30 ? "alerte" : "attente"}">${t.supprime ? "Supprimé" : "+" + r + " min"}</span>`;
+  b.addEventListener("click", () => {
+    b.closest("ul").querySelectorAll(".ligne").forEach((x) => x.setAttribute("aria-pressed", x === b));
+    onClick();
+  });
+  li.appendChild(b);
+  return li;
+}
+
+// Formulaire visible (recherche) ou replié (le train affiché le remplace)
+function formulaire(visible) {
+  $("formulaire").hidden = !visible;
+  if (visible) $("recherche").removeAttribute("data-replie"); else $("recherche").setAttribute("data-replie", "");
+}
+
+function viderResultats() {
+  rangerVerdict(); $("arrets").hidden = true;
+  ["choix", "introuvable", "fiche"].forEach((id) => ($(id).hidden = true));
+  etat.train = null; etat.arret = null;
+  majAttente();
+}
+
+// Le reçu est un seul nœud qu'on déplace.
+function rangerVerdict() { $("verdict").hidden = true; $("fiche").appendChild($("verdict")); }
+
+// PC : la liste des gares passe dans la colonne de droite ; téléphone : elle reste sous la carte.
+function placerArrets() {
+  if (PC.matches) $("col-recu").appendChild($("arrets"));
+  else $("ancre-supp").after($("arrets"));
+}
+
+// Téléphone : sous la gare touchée.
+// PC : colonne de droite ; la liste se replie sur la gare choisie et le reçu s'imprime dessous, en haut d'écran.
+function placerVerdict() {
+  const v = $("verdict");
+  if (etat.train.supprime) PC.matches ? $("col-recu").appendChild(v) : $("ancre-supp").appendChild(v);
+  else if (PC.matches) $("arrets").after(v);
+  else $("arrets-liste").querySelectorAll(".arret")[etat.arret].after(v);
+  replierListe();
+}
+
+function replierListe() {
+  const replie = PC.matches && etat.train && !etat.train.supprime && etat.arret !== null;
+  $("arrets-liste").querySelectorAll(".arret").forEach((x) => (x.parentElement.hidden = replie && +x.dataset.i !== etat.arret));
+  $("changer-gare").hidden = !replie;
+  $("arrets-aide").hidden = replie;
+  $("arrets-titre").innerHTML = replie ? "Ta gare" : "Où es-tu descendu&nbsp;?";
+}
+
+function majAttente() {}
+
+function ouvrirTrain(t, arret = null, depuisGare = false) {
+  etat.train = t; etat.arret = null; etat.depuisGare = depuisGare;
+  ["choix", "introuvable"].forEach((id) => ($(id).hidden = true));
+  // Depuis la recherche par gare, la liste cliquée est au-dessus : on garde le formulaire.
+  if (!depuisGare) formulaire(false);
+  $("modifier").hidden = depuisGare;
+  $("fiche").hidden = false;
+  $("f-titre").innerHTML = `${esc(t.prod)} <span class="num">${esc(t.num)}</span>`;
+  $("f-trajet").textContent = route(t);
+  $("f-quand").innerHTML = `${esc(jourLabel(t.date))} · départ <span class="num">${esc(t.h)}</span>${t.supprime ? ' · <span class="etat-supp">Supprimé</span>' : ""}`;
+  $("f-cause").textContent = t.cause ? `Cause annoncée : ${t.cause}` : "";
+  $("f-cause").hidden = !t.cause;
+  rangerVerdict();
+  if (t.supprime) {
+    $("arrets").hidden = true;
+    placerVerdict(); montrerVerdict();
+  } else {
+    $("arrets").hidden = false; placerArrets(); rendreArrets();
+    if (arret !== null) ouvrirGare(arret);
+  }
+  majAttente(); majURL();
+  annoncer(t.supprime ? `${t.prod} ${t.num} : supprimé. Ton verdict suit.`
+                      : `${t.prod} ${t.num} trouvé. Choisis la gare où tu es descendu.`);
+}
+
+function rendreArrets() {
+  rangerVerdict();
+  const ul = $("arrets-liste"); ul.replaceChildren();
+  $("arrets-aide").textContent = etat.train.gares.length > 1 ? "Ton droit dépend du retard à ta gare, pas au terminus."
+    : "Pas encore de retard connu pour ce train. Reviens après son arrivée.";
+  etat.train.gares.slice(1).forEach(([g, r], i) => {
+    const li = document.createElement("li");
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "ligne arret"; b.dataset.i = i;
+    b.setAttribute("aria-expanded", "false"); b.setAttribute("aria-controls", "verdict");
+    const n = indexPalier(r);
+    b.innerHTML = `<span class="t">${esc(g)}</span><span class="r ${r >= 30 ? "alerte" : "attente"}">+${r} min</span>
+      <span class="paliers ${r >= 30 ? "alerte" : ""}" aria-hidden="true">${[0, 1, 2, 3, 4].map((k) => `<i class="${k <= n ? "on" : ""}"></i>`).join("")}</span>`;
+    b.addEventListener("click", () => {
+      const avant = b.getBoundingClientRect().top;
+      if (etat.arret === i) fermerGare(); else ouvrirGare(i);
+      // Un reçu refermé au-dessus a pu faire remonter la gare : on la remet sous le doigt.
+      const ecart = b.getBoundingClientRect().top - avant;
+      if (ecart) scrollBy(0, ecart);
+      majURL();
+    });
+    li.appendChild(b); ul.appendChild(li);
+  });
+}
+
+function ouvrirGare(i) {
+  etat.arret = i;
+  $("arrets-liste").querySelectorAll(".arret").forEach((x) => x.setAttribute("aria-expanded", +x.dataset.i === i));
+  placerVerdict(); montrerVerdict(); majAttente();
+  annoncer(`Verdict pour ${etat.train.gares[i + 1][0]} : ${$("v-titre").textContent}.`);
+}
+
+function fermerGare() {
+  const i = etat.arret;
+  etat.arret = null;
+  $("arrets-liste").querySelectorAll(".arret").forEach((x) => x.setAttribute("aria-expanded", "false"));
+  rangerVerdict(); replierListe(); majAttente();
+  return i;
+}
+
+function montrerVerdict() {
+  const t = etat.train;
+  const g = t.supprime ? null : t.gares[etat.arret + 1];
+  const r = g ? g[1] : 0;
+  const d = droit(t, t.supprime ? t.droitSuppression : g[2]);
+  const recu = $("recu");
+  recu.className = "recu" + (d.ton === "none" ? "" : " droit-ok");
+  const n = indexPalier(r);
+  // Ordre : l'essentiel d'abord (verdict, bouton), puis le détail du reçu.
+  recu.innerHTML = `
+    <p class="recu-titre">Ton verdict</p>
+    <hr class="pointille">
+    ${d.ton === "none" ? `<dl class="lignes"><div><dt>Statut</dt><dd>${esc(d.tampon)}</dd></div></dl>`
+      : `<div class="tampon-zone"><span class="tampon-encre"><span class="sr">Statut : </span>${esc(d.tampon)}</span></div>`}
+    <h2 class="verdict-titre" id="v-titre">${esc(d.titre)}</h2>
+    <p class="verdict-texte">${esc(d.texte)}</p>
+    ${d.pct ? `<p class="exemple">${exemple(d.pct)} Le montant dépend du prix que tu as payé.</p>` : ""}
+    ${d.lien ? `<a class="btn cta" href="${d.lien[1]}" target="_blank" rel="noopener">${libelleExt(d.lien[0])}</a>
+      <p class="sortie-note">Tu quittes le site : on ne transmet rien.</p>` : ""}
+    <hr class="pointille">
+    <dl class="lignes">
+      <div><dt>Train</dt><dd>${esc(t.prod)} ${esc(t.num)}</dd></div>
+      <div><dt>Date</dt><dd>${esc(jourLabel(t.date))} · ${esc(t.h)}</dd></div>
+      ${g ? `<div><dt>Descendu à</dt><dd>${esc(g[0])}</dd></div><div><dt>Retard constaté</dt><dd>+${r} min</dd></div>`
+          : `<div><dt>État</dt><dd>Supprimé</dd></div>`}
+    </dl>
+    ${g ? `<div class="paliers ${r >= 30 ? "alerte" : ""}" aria-hidden="true">${[0, 1, 2, 3, 4].map((k) => `<i class="${k <= n ? "on" : ""}"></i>`).join("")}</div>
+      <div class="paliers-legende" aria-hidden="true"><span>0</span><span>30</span><span>60</span><span>120</span><span>180</span></div>` : ""}
+    <dl class="lignes" style="margin-top:8px">
+      ${d.forme ? `<div><dt>Forme</dt><dd>${esc(d.forme)}</dd></div>` : ""}
+      <div><dt>Règle</dt><dd>${esc(d.regle)}</dd></div>
+      ${t.majA ? `<div><dt>Dernière annonce</dt><dd>${esc(t.majA)}</dd></div>` : ""}
+    </dl>
+    ${d.aConfirmer ? `<p class="exemple" style="margin-top:8px">Règle en cours de vérification sur les sources officielles.</p>` : ""}
+    ${d.g30 ? `<p class="exemple" style="margin-top:8px">${esc(d.g30)}</p>` : ""}
+    ${d.suite ? `<hr class="pointille"><div class="suite"><h3>Et maintenant&nbsp;?</h3><ul>${d.suite.map((s, k) => `<li><p>${esc(s.texte)}</p>${
+      s.lien ? `<a class="btn btn-2" href="${s.lien}" target="_blank" rel="noopener">${libelleExt(s.action)}</a>`
+             : `<button type="button" class="btn btn-2" data-suite="${k}">${esc(s.action)}</button>`}</li>`).join("")}</ul></div>` : ""}
+    ${g ? `<div class="recu-pied"><button type="button" class="lien" id="fermer">Fermer</button></div>` : ""}`;
+  $("verdict").hidden = false;
+  recu.classList.remove("sort"); void recu.offsetWidth; recu.classList.add("sort");
+  // Chercher un autre train : action explicite, on rouvre le formulaire vide.
+  recu.querySelectorAll("[data-suite]").forEach((b) => b.addEventListener("click", () => rouvrirRecherche(true)));
+  const f = $("fermer");
+  if (f) f.addEventListener("click", () => {
+    const i = fermerGare(); majURL();
+    $("arrets-liste").querySelectorAll(".arret")[i].focus({ preventScroll: true });
+  });
+}
+
+function rouvrirRecherche(vider = false) {
+  viderResultats(); formulaire(true); majURL();
+  if (vider) $("num").value = "";
+  $("num").focus(); $("num").select();
+}
+
+let demande = 0;  // ignore les réponses d'une recherche dépassée
+
+async function chercher(num, date) {
+  num = (num || "").replace(/\D/g, "");
+  $("num").value = num;
+  if (!num) { $("num").focus(); return; }
+  if (date) setDate(date);
+  const jour = dateChoisie(), n = ++demande;
+  annoncer("Recherche…");
+  let res;
+  try { res = await trouverTrains(num, jour); }
+  catch (e) { if (n === demande) annoncer("Les données ne répondent pas. Réessaie dans quelques minutes."); return; }
+  if (n !== demande) return;
+  viderResultats();
+  if (res.length === 1) { ouvrirTrain(res[0]); return res; }
+  if (res.length > 1) {
+    const ul = $("choix-liste"); ul.replaceChildren();
+    res.forEach((t) => ul.appendChild(ligneTrain(t, () => ouvrirTrain(t))));
+    $("choix").hidden = false;
+    annoncer("Plusieurs trains portent ce numéro : choisis le tien plus bas.");
+    return res;
+  }
+  $("intro-titre").textContent = `On ne trouve pas le train ${num} ${jour === AUJOURDHUI ? "aujourd'hui" : jour === HIER ? "hier" : jourLabel(jour)}`;
+  $("chercher-hier").hidden = jour !== AUJOURDHUI;
+  $("introuvable").hidden = false;
+  annoncer($("intro-titre").textContent);
+  return res;
+}
+
+let minuteur = null, demandeGares = 0;
+function rendreSansNum() {
+  clearTimeout(minuteur);
+  minuteur = setTimeout(async () => {
+    const arr = $("arr").value.trim(), dep = $("dep").value.trim(), ul = $("trouves"), n = ++demandeGares;
+    if (arr.length < 2 && dep.length < 2) { ul.replaceChildren(); $("rien").hidden = true; return; }
+    $("cherche-gares").hidden = false;
+    let l = [];
+    try { l = await chercherParGares(arr, dep); } catch (e) { l = []; }
+    if (n !== demandeGares) return;
+    $("cherche-gares").hidden = true;
+    ul.replaceChildren();
+    l.forEach((t) => ul.appendChild(ligneTrain(t, () => {
+      const i = arr ? t.gares.slice(1).findIndex(([g]) => norm(g).includes(norm(arr))) : -1;
+      viderResultats();
+      ouvrirTrain(t, i >= 0 && !t.supprime ? i : null, true);
+    })));
+    $("rien").hidden = l.length > 0;
+  }, 300);
+}
+
+function ouvrirSansNum(ouvrir) {
+  $("sansnum").hidden = !ouvrir; $("btn-sansnum").setAttribute("aria-expanded", ouvrir);
+}
+
+$("auj").addEventListener("click", () => setDate(null));
+$("date").addEventListener("change", () => setDate($("date").value));
+$("form").addEventListener("submit", (e) => { e.preventDefault(); chercher($("num").value); });
+$("modifier").addEventListener("click", () => rouvrirRecherche(false));
+$("btn-sansnum").addEventListener("click", () => ouvrirSansNum($("sansnum").hidden));
+$("arr").addEventListener("input", rendreSansNum);
+$("dep").addEventListener("input", rendreSansNum);
+$("chercher-hier").addEventListener("click", () => chercher($("num").value, HIER));
+$("vers-sansnum").addEventListener("click", () => { ouvrirSansNum(true); $("arr").focus(); });
+// Passage PC ↔ téléphone (fenêtre redimensionnée) : on replace le reçu ouvert.
+PC.addEventListener("change", () => {
+  placerArrets();
+  if (etat.train && !$("verdict").hidden) placerVerdict(); else if (etat.train) replierListe();
+});
+$("changer-gare").addEventListener("click", () => {
+  const i = fermerGare(); majURL();
+  $("arrets-liste").querySelectorAll(".arret")[i].focus({ preventScroll: true });
+});
+
+// « Aide » ouvre l'explication
+function ouvrirAide() { if (location.hash === "#aide") $("aide").open = true; }
+addEventListener("hashchange", ouvrirAide); ouvrirAide();
+
+// Lien partageable : ?train=6611&date=2026-11-08&gare=Avignon%20TGV
+(async function depuisURL() {
+  const p = new URLSearchParams(location.search);
+  if (!p.get("train")) return;
+  const res = await chercher(p.get("train"), p.get("date") || undefined);
+  if (!res || res.length !== 1 || !p.get("gare") || res[0].supprime) return;
+  const i = res[0].gares.slice(1).findIndex(([g]) => g === p.get("gare"));
+  if (i >= 0) { ouvrirGare(i); majURL(); }
+})();
+</script>
+</body>
+</html>

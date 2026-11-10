@@ -43,6 +43,7 @@ L'application complète (prévue : `cp .env.example .env`, puis `docker-compose 
 │   ├── referentiel.py   # gares, régions et lignes tirées du GTFS théorique
 │   ├── base.py          # schéma et écritures PostgreSQL (zone critique)
 │   ├── ingestion.py     # relevés bruts → base, toutes les 30 s
+│   ├── api.py           # API du site + pages (droits calculés à la lecture)
 │   └── ref/regions.geojson  # contours des régions (france-geojson)
 ├── tests/               # pytest ; test_base.py tourne sur le VPS (vraie base)
 ├── docs/
@@ -54,6 +55,7 @@ L'application complète (prévue : `cp .env.example .env`, puis `docker-compose 
 │       ├── serveur.py       # serveur local à rechargement auto (127.0.0.1:8000)
 │       ├── style.css        # styles partagés
 │       └── donnees.js       # trains fictifs + règles simplifiées
+├── frontend/            # le vrai site : site.html (Mon train), aujourdhui.html, sur l'API
 ├── deploy/              # Docker du serveur : collecte, Postgres, ingestion (VPS ~/monretard/)
 ├── poc/                 # prototype du flux (jalon 1)
 │   ├── collect.py       # collecte GTFS-RT toutes les 2 min
