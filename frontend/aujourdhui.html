@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aujourd'hui · monretard.fr</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  /* Carte du jour : le même visuel que le post X / Instagram. */
+  .visuel { aspect-ratio: 1; background: var(--ink); color: var(--paper); border-radius: 10px; padding: 8%; margin: 20px 0 0;
+            display: grid; grid-template-rows: auto 1fr auto; container-type: inline-size; }
+  .visuel .haut { display: flex; justify-content: space-between; font-size: 4.2cqw; font-weight: 700; color: #D5D8DC; }
+  .visuel .gros { align-self: end; }
+  .visuel .gros b { display: block; font-family: var(--sans); font-variant-numeric: tabular-nums; font-weight: 900; font-size: 40cqw; line-height: .82; letter-spacing: -.04em; }
+  .visuel .gros span { display: block; font-size: 7.6cqw; font-weight: 800; line-height: 1.12; margin-top: 4cqw; max-width: 14ch; }
+  .visuel.zero .gros span { max-width: 16ch; }
+  .visuel .tampon-zone { margin: 4cqw 0 0; }
+  .visuel .tampon-encre { background: var(--paper); font-size: 4.6cqw; padding: 1.6cqw 3.2cqw; }
+  .maj { font-size: 14px; color: var(--ink-2); margin: 8px 0 20px; }
+  /* Le relevé : un train par ligne. */
+  .releve { list-style: none; margin: 0; padding: 0; border-top: 1.5px solid var(--ink); }
+  .releve a { display: grid; grid-template-columns: 96px 1fr auto; align-items: baseline; gap: 0 12px; padding: 13px 4px;
+              border-bottom: 1px solid var(--rule); text-decoration: none; color: inherit; }
+  .releve a:hover { background: var(--paper); }
+  .releve .r { font-family: var(--mono); font-weight: 700; font-size: 18px; }
+  .releve .r.sup { font-family: var(--sans); font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+  .releve .t { font-weight: 700; }
+  .releve .s { display: block; font-size: 14px; color: var(--ink-2); font-weight: 400; }
+  .releve .f { color: var(--ink-2); font-size: 18px; }
+  .autre { margin: 18px 0 0; }
+  .autre a { font-weight: 700; color: var(--ink); text-underline-offset: 3px; }
+  @media (min-width: 960px) {
+    .top .in, .page { max-width: 1040px; }
+    .cols { display: grid; grid-template-columns: 440px 1fr; gap: 48px; align-items: start; }
+    .visuel { margin-top: 28px; }
+    .droite { padding-top: 28px; }
+  }
+</style>
+</head>
+<body>
+<div class="badge-maquette">Aperçu — données réelles SNCF, règles encore en vérification.</div>
+<header class="top"><div class="in">
+  <a class="marque" href="site.html">monretard.fr</a>
+  <nav aria-label="Principale"><a href="site.html">Mon train</a><a href="aujourdhui.html" aria-current="page">Aujourd'hui</a><a href="site.html#aide">Aide</a></nav>
+</div></header>
+
+<main class="page">
+  <div class="cols">
+    <div>
+      <div class="visuel" id="visuel" role="img"></div>
+      <p class="maj" id="maj"></p>
+    </div>
+    <div class="droite">
+      <h1 class="sr">Les trains qui ouvrent un droit aujourd'hui</h1>
+      <ul class="releve" id="releve" aria-busy="true"></ul>
+      <p class="autre">Ton train n'y est pas&nbsp;? <a href="site.html">Vérifie-le</a></p>
+    </div>
+  </div>
+  <p class="pied">Un train sans droit n'apparaît pas ici. Les RER, métros et Transilien ne sont pas suivis.
+    Données SNCF Voyageurs en open data (ODbL). Site indépendant, sans lien avec la SNCF.</p>
+</main>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const JOURS = ["Dim.", "Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam."];
+const MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+
+function carte(jour, n) {
+  const d0 = new Date(jour + "T12:00:00");
+  const dateCourte = `${JOURS[d0.getDay()]} ${d0.getDate()} ${MOIS[d0.getMonth()]}`;
+  const v = $("visuel");
+  if (n) {
+    const phrase = n === 1 ? "train ouvre un droit aujourd'hui" : "trains ouvrent un droit aujourd'hui";
+    v.setAttribute("aria-label", `${dateCourte} : ${n} ${phrase}`);
+    v.innerHTML = `<div class="haut"><span>${dateCourte}</span><span>monretard.fr</span></div>
+      <div class="gros"><b>${n}</b><span>${phrase}</span></div>
+      <div class="tampon-zone"><span class="tampon-encre">Droit ouvert</span></div>`;
+  } else {
+    // Pas de droit, pas de couleur : pas de tampon.
+    v.classList.add("zero");
+    v.setAttribute("aria-label", `${dateCourte} : aucun train ne t'ouvre de droit aujourd'hui`);
+    v.innerHTML = `<div class="haut"><span>${dateCourte}</span><span>monretard.fr</span></div>
+      <div class="gros"><b>0</b><span>Aucun train ne t'ouvre de droit aujourd'hui</span></div><div></div>`;
+  }
+}
+
+async function charger() {
+  const ul = $("releve");
+  try {
+    const r = await fetch("/api/aujourdhui", { cache: "no-store" });
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    carte(d.jour, d.trains.length);
+    $("maj").innerHTML = d.mis_a_jour ? `Mis à jour à <span class="num">${esc(d.mis_a_jour)}</span>` : "";
+    ul.replaceChildren();
+    d.trains.forEach((t) => {
+      const li = document.createElement("li");
+      li.innerHTML = `<a href="site.html?train=${encodeURIComponent(t.numero)}&date=${d.jour}">
+        ${t.supprime ? `<span class="r sup">Supprimé</span>` : `<span class="r"><span class="sr">Retard : </span>+${t.retard_max_min}<span class="sr"> min</span></span>`}
+        <span class="t">${esc(t.nom)} <span class="num">${esc(t.numero)}</span><span class="s">${esc(t.origine)} → ${esc(t.terminus)}</span></span>
+        <span class="f" aria-hidden="true">›</span></a>`;
+      ul.appendChild(li);
+    });
+  } catch (e) {
+    $("maj").textContent = "Les données ne répondent pas pour l'instant. Réessaie dans quelques minutes.";
+  } finally {
+    ul.removeAttribute("aria-busy");
+  }
+}
+charger();
+setInterval(charger, 120000);  // un relevé toutes les 2 min
+</script>
+</body>
+</html>

@@ -6,5 +6,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY pytest.ini ./
 COPY backend/ backend/
 COPY tests/ tests/
+COPY frontend/ frontend/
 COPY poc/collect.py poc/analyse.py poc/regions.py poc/
 ENV PYTHONUNBUFFERED=1

@@ -37,5 +37,16 @@ services:
     depends_on: { db: { condition: service_healthy } }
     mem_limit: 512m
 
+  api:
+    <<: *commun
+    command: ["uvicorn", "backend.api:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+    environment:
+      DATABASE_URL: postgresql://monretard:${POSTGRES_PASSWORD}@db:5432/monretard
+    # Pas encore public (pas de domaine) : écoute seulement sur le VPS lui-même.
+    # Depuis le PC : ssh -N -L 8100:127.0.0.1:8100 ubuntu@149.56.102.94  puis http://127.0.0.1:8100
+    ports: ["127.0.0.1:8100:8000"]
+    depends_on: { db: { condition: service_healthy } }
+    mem_limit: 256m
+
 volumes:
   pgdata:
