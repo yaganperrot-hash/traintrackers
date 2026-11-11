@@ -25,7 +25,24 @@ venv/Scripts/python -m pip install -r poc/requirements.txt
 venv/Scripts/python -m pip install -r requirements.txt
 venv/Scripts/python -m pytest -q   # tests
 ```
-L'application complète (prévue : `cp .env.example .env`, puis `docker-compose up -d`) arrivera avec le jalon 3.
+Sur le serveur, l'application tourne sous Docker (`deploy/docker-compose.yml`).
+
+### Site en local (Windows, sans Docker)
+```powershell
+powershell -ExecutionPolicy Bypass -File deploy\local.ps1         # lance tout, puis http://127.0.0.1:8000
+powershell -ExecutionPolicy Bypass -File deploy\local.ps1 -Stop   # arrête tout
+```
+Le script démarre PostgreSQL, l'ingestion des relevés de `poc/data/` et l'API avec les pages, en
+processus détachés. Les données sont celles du collecteur du PC (`poc/collect.py`) : trous quand le PC
+est en veille, moins complètes que sur le VPS.
+
+Mise en place, une fois :
+- PostgreSQL 16 dans `%LOCALAPPDATA%\monretard\` (binaires `pg16\`, données `pgdata\`, journaux), hors
+  OneDrive. Installé le 2026-11-11 depuis Maven Central (`io.zonky.test.postgres`, 16.15), le
+  téléchargement officiel EnterpriseDB étant refusé (403). Écoute sur 127.0.0.1 seulement.
+- `.env` à la racine (ignoré par git) : `DATABASE_URL=postgresql://monretard:…@127.0.0.1:5432/monretard`.
+- Tests sur vraie base : `DATABASE_URL_TEST` vers la base `monretard_test` (jamais la base `monretard`,
+  les tests vident les tables).
 
 ## Structure
 ```
@@ -58,6 +75,7 @@ L'application complète (prévue : `cp .env.example .env`, puis `docker-compose 
 │       └── donnees.js       # trains fictifs + règles simplifiées
 ├── frontend/            # le vrai site : site.html (Mon train), aujourdhui.html, sur l'API
 ├── deploy/              # Docker du serveur : collecte, Postgres, ingestion (VPS ~/monretard/)
+│   └── local.ps1        # site en local sur le PC (PostgreSQL + ingestion + API), sans Docker
 ├── poc/                 # prototype du flux (jalon 1)
 │   ├── collect.py       # collecte GTFS-RT toutes les 2 min
 │   ├── analyse.py       # rapport par jour
