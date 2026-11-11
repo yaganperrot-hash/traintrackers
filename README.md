@@ -48,6 +48,7 @@ L'application complète (prévue : `cp .env.example .env`, puis `docker-compose 
 ├── tests/               # pytest ; test_base.py tourne sur le VPS (vraie base)
 ├── docs/
 │   ├── regles-remboursement.md  # veille des règles (validé le 2026-11-07)
+│   ├── strategie-communication.md  # stratégie de communication (2026-11-11, non mise en œuvre)
 │   └── maquettes/       # maquettes « Le reçu », données fictives
 │       ├── site.html        # recherche d'un train → verdict
 │       ├── aujourdhui.html  # trains qui ouvrent un droit aujourd'hui
