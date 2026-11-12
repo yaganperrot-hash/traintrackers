@@ -1,11 +1,12 @@
 # TODO
 
 ## Décisions en attente (règles — zone critique, accord requis avant modification)
+> Les deux décisions non cochées sont mises de côté (choix du 2026-11-12), pas abandonnées.
 - [ ] **Train de type inconnu supprimé** : `evaluer()` renvoie « remboursement intégral » avant de vérifier
       le produit (ex. le 2026-11-10 : un Transilien Paris Est → Longueville classé « ? »). Proposition : aucun
       droit affirmé pour un type inconnu, même supprimé. Contourné pour l'instant dans `backend/api.py`.
-- [ ] **Tutoiement** : les messages de `backend/regles.py` disent « vous » ; le ton du site est le « tu »
-      (décidé le 2026-11-08). Proposition : passer ces textes au « tu ».
+- [x] **Tutoiement** : messages de `backend/regles.py` passés au « tu » le 2026-11-12 (textes seuls, aucune
+      règle modifiée). À déployer sur le VPS.
 - [ ] **TGV INOUI international** (ex. 9864 Montpellier → Bruxelles) : traité en G30 national. Au-delà de 3 h,
       le site afficherait 75 % au lieu du plafond international de 50 %. Proposition : reconnaître un train
       international à sa gare de départ ou d'arrivée hors de France.

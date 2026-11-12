@@ -8,7 +8,7 @@ Principes :
   - en cas de doute sur un train ferroviaire international, on applique le plancher légal européen
     (règlement UE 2021/782, art. 19) marqué `a_confirmer` — jamais plus ;
   - le retard passé à `evaluer` est celui à la gare d'arrivée du voyageur (ou le maximum constaté
-    sur le parcours pour le post quotidien, avec la mention « selon votre gare d'arrivée ») ;
+    sur le parcours pour le post quotidien, avec la mention « selon ta gare d'arrivée ») ;
   - on n'affiche que des pourcentages : le prix du billet est inconnu.
 """
 from __future__ import annotations
@@ -127,8 +127,8 @@ def _depuis_bareme(b: Bareme, retard_min: int) -> Droit:
                      lien=b.lien, a_confirmer=b.a_confirmer, source=b.source)
     if b is OUIGO:
         return Droit(Statut.AUTOMATIQUE, b.regle,
-                     f"OUIGO : {pct} % du billet, versé automatiquement. Rien à faire : OUIGO vous écrit. "
-                     "Pas reçu sous 15 jours ? Contactez OUIGO.",
+                     f"OUIGO : {pct} % du billet, versé automatiquement. Rien à faire : OUIGO t'écrit. "
+                     "Pas reçu sous 15 jours ? Contacte OUIGO.",
                      pourcentage=pct, forme="bon d'achat (remboursable)", lien=b.lien, source=b.source)
     forme = None
     if b in (G30, G30_INTERNATIONAL):
@@ -140,15 +140,15 @@ def _depuis_bareme(b: Bareme, retard_min: int) -> Droit:
     precision = " (règle à confirmer)" if b.a_confirmer else ""
     texte_forme = f" en {forme}" if forme else ""
     return Droit(Statut.DROIT, b.regle,
-                 f"{b.nom} : {pct} % du prix du billet{texte_forme}, selon votre gare d'arrivée{precision}.",
+                 f"{b.nom} : {pct} % du prix du billet{texte_forme}, selon ta gare d'arrivée{precision}.",
                  pourcentage=pct, forme=forme, lien=b.lien, a_confirmer=b.a_confirmer, source=b.source)
 
 
 def _suppression_grandes_lignes(produit: str) -> Droit:
     lien = LIEN_OUIGO if produit == "OGO" else LIEN_G30
     return Droit(Statut.REMBOURSEMENT, "SUPPRESSION",
-                 "Train supprimé : vous pouvez demander le remboursement intégral de votre billet. "
-                 "Si vous avez pris un autre train, votre droit dépend de votre retard à l'arrivée.",
+                 "Train supprimé : tu peux demander le remboursement intégral de ton billet. "
+                 "Si tu as pris un autre train, ton droit dépend de ton retard à l'arrivée.",
                  pourcentage=100, lien=lien, a_confirmer=True, source=SRC_UE)
 
 
@@ -187,7 +187,7 @@ def _ter(retard_min: int | None, supprime: bool, region: str | None, marque: str
     etat = "supprimé" if supprime else "en retard"
     return Droit(Statut.AUCUN, "TER_SANS_GARANTIE",
                  f"{nom} {etat} : pas de remboursement par train pour un billet à l'unité.{complement} "
-                 "Abonné ? Votre région prévoit peut-être une compensation mensuelle.",
+                 "Abonné ? Ta région prévoit peut-être une compensation mensuelle.",
                  lien=LIEN_TER, a_confirmer=True)
 
 
@@ -211,5 +211,5 @@ def evaluer(produit: str, retard_min: int | None = None, supprime: bool = False,
         return _suppression_grandes_lignes(produit)
     if bareme is None:
         return Droit(Statut.AUCUN, "INCONNU",
-                     "Type de train non identifié : nous ne pouvons pas indiquer vos droits.", a_confirmer=True)
+                     "Type de train non identifié : nous ne pouvons pas indiquer tes droits.", a_confirmer=True)
     return _depuis_bareme(bareme, retard_min or 0)
