@@ -57,5 +57,11 @@ def test_api(monkeypatch):
         assert t["gares"][1]["droit"]["statut"] == "aucun"        # +20 à Lyon : sous le seuil G30
         assert t["gares"][2]["droit"]["statut"] == "droit"        # +74 à Marseille
 
+        p = client.get("/api/publication", params={"jour": "2026-11-09"}).json()
+        assert p["n"] == 2 and p["n_supprimes"] == 1 and p["date_longue"] == "Lundi 9 novembre"
+        assert [t["num"] for t in p["trains"]] == ["4756", "6611"] and p["pire"]["num"] == "6611"
+        assert p["trains"][1]["route"] == "Paris Gare de Lyon → Marseille Saint-Charles"
+        assert "TGV INOUI 6611, +1 h 14" in p["textes"]["x"]
+
         assert client.get("/api/train", params={"numero": "9999", "jour": "2026-11-09"}).status_code == 404
         assert client.get("/api/train", params={"numero": "abc"}).status_code == 422

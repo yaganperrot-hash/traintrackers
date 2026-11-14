@@ -61,6 +61,7 @@ Mise en place, une fois :
 │   ├── base.py          # schéma et écritures PostgreSQL (zone critique)
 │   ├── ingestion.py     # relevés bruts → base, toutes les 30 s
 │   ├── api.py           # API du site + pages (droits calculés à la lecture)
+│   ├── publication.py   # post quotidien : chiffres et textes X / Instagram (aucune règle)
 │   └── ref/regions.geojson  # contours des régions (france-geojson)
 ├── tests/               # pytest ; test_base.py tourne sur le VPS (vraie base)
 ├── docs/
@@ -74,6 +75,7 @@ Mise en place, une fois :
 │       ├── style.css        # styles partagés
 │       └── donnees.js       # trains fictifs + règles simplifiées
 ├── frontend/            # le vrai site : site.html (Mon train), aujourdhui.html, sur l'API
+│   └── publications.html # page interne : post du soir, images PNG 1080 × 1350 et textes à copier
 ├── deploy/              # Docker du serveur : collecte, Postgres, ingestion (VPS ~/monretard/)
 │   └── local.ps1        # site en local sur le PC (PostgreSQL + ingestion + API), sans Docker
 ├── poc/                 # prototype du flux (jalon 1)

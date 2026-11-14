@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Publications du jour — monretard.fr</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .interne { background: var(--line); font-size: 13px; padding: 8px 16px; text-align: center; }
+  .page { max-width: 1040px; }
+  .top .in { max-width: 1040px; }
+  h1 { margin-bottom: 4px; }
+  .sous { color: var(--ink-2); margin: 0 0 16px; font-size: 15px; }
+  .jours { margin: 0 0 24px; max-width: 320px; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  h2 { font-size: 18px; margin: 28px 0 4px; }
+  .note { font-size: 14px; color: var(--ink-2); margin: 0 0 12px; }
+  .tete-section { display: flex; align-items: end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .tete-section .btn { min-height: 40px; font-size: 14px; padding: 0 14px; margin-bottom: 12px; }
+
+  /* Bande du carrousel : les images à la suite, comme dans l'app. */
+  .bande-ig { display: grid; grid-auto-flow: column; grid-auto-columns: min(76vw, 300px); gap: 12px;
+              overflow-x: auto; scroll-snap-type: x mandatory; padding: 0 0 12px; }
+  figure { margin: 0; scroll-snap-align: start; }
+  figcaption { display: flex; justify-content: space-between; align-items: center; gap: 8px;
+               font-size: 13px; color: var(--ink-2); margin-top: 6px; font-family: var(--mono); }
+  figcaption .lien { padding: 4px 0; min-height: 32px; font-family: var(--sans); font-size: 14px; }
+  /* Chaque image est un canvas 1080 × 1350 : ce qu'on voit est exactement le PNG téléchargé. */
+  canvas.img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; border-radius: 6px;
+               box-shadow: 0 1px 3px rgba(0,0,0,.18); }
+  .x canvas.img { max-width: 300px; }
+
+  .textes { display: grid; gap: 16px; }
+  .texte { background: var(--paper); border-radius: var(--r); padding: 14px 16px; }
+  .texte-tete { display: flex; align-items: center; gap: 12px; margin: 0 0 8px; }
+  .texte-tete .btn { margin-left: auto; min-height: 36px; padding: 0 14px; font-size: 14px; }
+  .texte-tete b { font-size: 15px; }
+  .texte-tete .compte { font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
+  .texte-tete .compte.trop { color: var(--alerte); font-weight: 700; }
+  .texte pre { white-space: pre-wrap; font-family: var(--sans); font-size: 15px; margin: 0; line-height: 1.5; }
+  .erreur { background: var(--paper); border-radius: var(--r); padding: 14px 16px; color: var(--alerte); font-weight: 700; }
+  @media (min-width: 960px) {
+    .duo { display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: start; }
+  }
+</style>
+</head>
+<body>
+<div class="interne">Page interne : le post à publier à la main sur Instagram et X.</div>
+<header class="top"><div class="in">
+  <a class="marque" href="site.html">monretard.fr</a>
+  <nav aria-label="Principale"><a href="site.html">Mon train</a><a href="aujourdhui.html">Aujourd'hui</a><a href="publications.html" aria-current="page">Publications</a></nav>
+</div></header>
+
+<main class="page">
+  <h1>Le post du soir</h1>
+  <p class="sous" id="sous" aria-live="polite">Chargement…</p>
+  <div class="seg plein jours" role="group" aria-label="Jour du post" id="jours">
+    <button type="button" data-j="0" aria-pressed="true">Aujourd'hui</button>
+    <button type="button" data-j="-1" aria-pressed="false">Hier</button>
+  </div>
+  <p class="erreur" id="erreur" hidden></p>
+
+  <div id="contenu" hidden>
+    <div class="tete-section">
+      <div>
+        <h2>Instagram · carrousel</h2>
+        <p class="note">Format portrait 4:5 (1080 × 1350). Fais défiler les images de gauche à droite.</p>
+      </div>
+      <button class="btn btn-2" type="button" id="tout">Tout télécharger</button>
+    </div>
+    <div class="bande-ig" id="carrousel"></div>
+
+    <div class="duo">
+      <div>
+        <h2>X · image</h2>
+        <p class="note">La première image du carrousel, seule.</p>
+        <div class="x" id="x-img"></div>
+      </div>
+      <div>
+        <h2>Textes à copier</h2>
+        <p class="note">À coller tels quels au moment de publier.</p>
+        <div class="textes" id="textes"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="donnees.js"></script>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const PAR_IMAGE = 6, MAX_LISTES = 8;
+
+// --- Dessin des images (canvas 1080 × 1350) -------------------------------------------------
+const L = 1080, H = 1350, MARGE = 76, U = (L - 2 * MARGE) / 100;  // U : 1 % de la largeur utile
+const C = { encre: "#1E1F24", papier: "#FAFBFC", second: "#4A4D55", filet: "#C3C7CC", clair: "#D5D8DC", droit: "#3B3FA8" };
+const SANS = '"Public Sans", system-ui, sans-serif', MONO = '"JetBrains Mono", ui-monospace, monospace';
+const police = (graisse, taille, famille = SANS) => `${graisse} ${Math.round(taille)}px ${famille}`;
+
+function ecrire(x, txt, px, y, o = {}) {
+  x.font = o.font; x.fillStyle = o.couleur; x.textAlign = o.align || "left"; x.textBaseline = o.base || "alphabetic";
+  x.letterSpacing = o.espace || "0px";
+  x.fillText(txt, px, y);
+  x.letterSpacing = "0px";
+}
+// Coupe un texte en lignes qui tiennent dans `largeur` (la police doit déjà être posée sur le contexte).
+function lignes(x, txt, largeur) {
+  const sortie = [];
+  let ligne = "";
+  for (const mot of txt.split(" ")) {
+    const essai = ligne ? `${ligne} ${mot}` : mot;
+    if (ligne && x.measureText(essai).width > largeur) { sortie.push(ligne); ligne = mot; } else ligne = essai;
+  }
+  if (ligne) sortie.push(ligne);
+  return sortie;
+}
+function tronquer(x, txt, largeur) {
+  if (x.measureText(txt).width <= largeur) return txt;
+  while (txt.length > 1 && x.measureText(txt + "…").width > largeur) txt = txt.slice(0, -1);
+  return txt.trimEnd() + "…";
+}
+function toile(fond) {
+  const c = document.createElement("canvas");
+  c.width = L; c.height = H; c.className = "img"; c.setAttribute("role", "img");
+  const x = c.getContext("2d");
+  x.fillStyle = fond; x.fillRect(0, 0, L, H);
+  return [c, x];
+}
+function haut(x, p, droite, couleur) {
+  const o = { font: police(700, 4.2 * U), couleur, base: "top" };
+  ecrire(x, p.date_courte, MARGE, MARGE, o);
+  if (droite) ecrire(x, droite, L - MARGE, MARGE, { ...o, align: "right" });
+}
+function filet(x, y, epaisseur, couleur) { x.fillStyle = couleur; x.fillRect(MARGE, y, L - 2 * MARGE, epaisseur); }
+
+function imageUne(p) {
+  const [c, x] = toile(C.encre);
+  const n = p.n, bas = H - MARGE;
+  const phrase = n === 0 ? `Aucun train ne t'ouvre de droit ${p.quand}`
+    : `${n === 1 ? "train t'ouvre" : "trains t'ouvrent"} un droit ${p.quand}`;
+  c.setAttribute("aria-label", `${p.date_longue} : ${n ? n + " " : ""}${phrase}`);
+  haut(x, p, p.arrete_a ? `arrêté à ${p.arrete_a}` : "", C.clair);
+
+  // Pied : mention à gauche, adresse à droite, sous un filet.
+  ecrire(x, n ? "Selon ta gare d'arrivée" : "Bonne nouvelle", MARGE, bas, { font: police(400, 3.8 * U), couleur: C.clair, base: "bottom" });
+  ecrire(x, p.adresse, L - MARGE, bas + 4, { font: police(700, 5 * U, MONO), couleur: "#fff", align: "right", base: "bottom" });
+  let y = bas - 5 * U * 1.3 - 4 * U;
+  filet(x, y, 1.5, C.second);
+  y -= 6 * U;
+
+  // Tampon « Droit ouvert », à droite, légèrement penché.
+  if (n) {
+    const f = police(800, 4.8 * U), txt = "DROIT OUVERT", esp = 0.1 * 4.8 * U;
+    x.font = f; x.letterSpacing = `${esp}px`;
+    const lt = x.measureText(txt).width; x.letterSpacing = "0px";
+    const pw = 3.2 * U, ph = 1.9 * U, w = lt + 2 * pw, h = 4.8 * U * 1.1 + 2 * ph;
+    x.save();
+    x.translate(L - MARGE - w / 2 - 6, y - h / 2 - 4); x.rotate(-4 * Math.PI / 180);
+    x.fillStyle = C.papier; x.beginPath(); x.roundRect(-w / 2, -h / 2, w, h, 12); x.fill();
+    x.strokeStyle = C.droit; x.lineWidth = 5; x.beginPath(); x.roundRect(-w / 2 + 2.5, -h / 2 + 2.5, w - 5, h - 5, 10); x.stroke();
+    x.lineWidth = 2.5; x.beginPath(); x.roundRect(-w / 2 + 10, -h / 2 + 10, w - 20, h - 20, 6); x.stroke();
+    ecrire(x, txt, -lt / 2, 2, { font: f, couleur: C.droit, base: "middle", espace: `${esp}px` });
+    x.restore();
+    y -= h + 5 * U;
+  }
+
+  // Phrase puis le grand nombre, empilés depuis le bas.
+  const tp = 8 * U, ip = tp * 1.12;
+  x.font = police(800, tp);
+  const ls = lignes(x, phrase, n === 0 ? L - 2 * MARGE : 14 * tp * 0.58);
+  ls.slice().reverse().forEach((l, i) => ecrire(x, l, MARGE, y - i * ip, { font: police(800, tp), couleur: C.papier, base: "bottom" }));
+  y -= ls.length * ip + 2 * U;
+  if (n) {
+    const tn = Math.min(44 * U, (L - 2 * MARGE) / (String(n).length * 0.6));  // 4 chiffres tiennent encore
+    ecrire(x, String(n), MARGE - tn * 0.04, y, { font: police(900, tn), couleur: C.papier, espace: `${-0.04 * tn}px` });
+  }
+  return c;
+}
+
+function imageListe(p, trains, k, nPages, reste) {
+  const [c, x] = toile(C.papier);
+  const bas = H - MARGE, debut = k * PAR_IMAGE + 1;
+  c.setAttribute("aria-label", `Trains ${debut} à ${debut + trains.length - 1} : ` + trains.map((t) =>
+    `${t.prod} ${t.num} ${t.route}, ${t.sup ? "supprimé" : "plus " + t.r + " minutes"}`).join(" ; "));
+  haut(x, p, nPages > 1 ? `${k + 1}/${nPages}` : "", C.second);
+  let y = MARGE + 4.2 * U * 1.5 + 6 * U;
+  ecrire(x, "Ils t'ouvrent un droit", MARGE, y, { font: police(800, 7 * U), couleur: C.encre, base: "top" });
+  y += 7 * U * 1.1 + 3 * U;
+  filet(x, y, 0.5 * U, C.encre);
+  y += 0.5 * U;
+
+  const col2 = MARGE + 25 * U, largeur2 = L - MARGE - col2;
+  for (const t of trains) {
+    y += 2.6 * U;
+    if (t.sup) ecrire(x, "SUPPRIMÉ", MARGE, y + 1.4 * U, { font: police(800, 3.6 * U), couleur: C.encre, base: "top", espace: `${0.04 * 3.6 * U}px` });
+    else ecrire(x, `+${t.r}`, MARGE, y, { font: police(700, 5 * U, MONO), couleur: C.encre, base: "top" });
+    x.font = police(700, 4.4 * U);
+    ecrire(x, tronquer(x, `${t.prod} ${t.num}`.trim(), largeur2), col2, y, { font: police(700, 4.4 * U), couleur: C.encre, base: "top" });
+    y += 4.4 * U * 1.25;
+    x.font = police(400, 3.6 * U);
+    ecrire(x, tronquer(x, t.route, largeur2), col2, y, { font: police(400, 3.6 * U), couleur: C.second, base: "top" });
+    y += 3.6 * U * 1.25 + 2.6 * U;
+    filet(x, y, 0.3 * U, C.filet);
+    y += 0.3 * U;
+  }
+  if (reste) ecrire(x, `+ ${reste} autres sur ${p.adresse}`, MARGE, y + 3 * U, { font: police(700, 4 * U), couleur: C.encre, base: "top" });
+
+  ecrire(x, "Retards en min · selon ta gare", MARGE, bas, { font: police(400, 3.6 * U), couleur: C.second, base: "bottom" });
+  ecrire(x, p.adresse, L - MARGE, bas + 3, { font: police(700, 4.2 * U, MONO), couleur: C.encre, align: "right", base: "bottom" });
+  filet(x, bas - 4.2 * U * 1.3 - 3 * U, 0.3 * U, C.filet);
+  return c;
+}
+
+function imageFin(p) {
+  const [c, x] = toile(C.encre);
+  c.setAttribute("aria-label", `Vérifie ton train sur ${p.adresse}`);
+  haut(x, p, "", C.clair);
+  const q = p.n ? "Ton train est dedans ?" : "Un doute sur ton train ?";
+  const tq = 9 * U, ta = 10 * U;
+  x.font = police(800, tq);
+  const ls = lignes(x, q, L - 2 * MARGE);
+  let y = H / 2 - (ls.length * tq * 1.1 + 5 * U + ta) / 2;
+  for (const l of ls) { ecrire(x, l, MARGE, y, { font: police(800, tq), couleur: C.papier, base: "top" }); y += tq * 1.1; }
+  ecrire(x, p.adresse, MARGE, y + 5 * U, { font: police(700, ta, MONO), couleur: "#fff", base: "top", espace: `${-0.02 * ta}px` });
+  ecrire(x, "Lien en bio · On ne fait pas la demande à ta place.", MARGE, H - MARGE, { font: police(400, 3.8 * U), couleur: C.clair, base: "bottom" });
+  return c;
+}
+
+// Pages de liste : 6 trains par image, 8 images au plus ; la dernière garde une ligne pour « + N autres ».
+function pagesDe(trains) {
+  const pages = [];
+  for (let i = 0; i < trains.length && pages.length < MAX_LISTES; i += PAR_IMAGE) pages.push(trains.slice(i, i + PAR_IMAGE));
+  if (trains.length > MAX_LISTES * PAR_IMAGE) pages[pages.length - 1].pop();
+  const montres = pages.reduce((s, pg) => s + pg.length, 0);
+  return [pages, trains.length - montres];
+}
+
+// --- Page -----------------------------------------------------------------------------------
+let images = [], post = null;
+
+function telecharger(canvas, i) {
+  canvas.toBlob((blob) => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `monretard-${post.jour}-${String(i + 1).padStart(2, "0")}.png`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }, "image/png");
+}
+
+function rendre(p) {
+  post = p;
+  const n = p.n;
+  $("sous").textContent = `${p.date_longue}${p.arrete_a ? ` · arrêté à ${p.arrete_a}` : ""} · `
+    + (n === 0 ? "aucun train n'ouvre de droit" : `${n} train${n > 1 ? "s" : ""} ouvre${n > 1 ? "nt" : ""} un droit`);
+  const [pages, reste] = pagesDe(p.trains);
+  images = [imageUne(p), ...pages.map((pg, k) => imageListe(p, pg, k, pages.length, k === pages.length - 1 ? reste : 0)), imageFin(p)];
+  $("carrousel").replaceChildren(...images.map((c, i) => {
+    const f = document.createElement("figure"), cap = document.createElement("figcaption");
+    cap.innerHTML = `<span>${i + 1}/${images.length}</span><button class="lien" type="button" data-png="${i}">Télécharger</button>`;
+    f.append(c, cap);
+    return f;
+  }));
+  const une = imageUne(p), fx = document.createElement("figure"), capx = document.createElement("figcaption");
+  capx.innerHTML = `<span>image X</span><button class="lien" type="button" data-png="0">Télécharger</button>`;
+  fx.append(une, capx);
+  $("x-img").replaceChildren(fx);
+
+  const g = p.longueurs;
+  const blocs = [
+    { titre: "X", txt: p.textes.x, compte: `${g.x}/${g.x_max}`, trop: g.x > g.x_max },
+    { titre: "Instagram · légende", txt: p.textes.instagram, compte: `${g.instagram}/${g.instagram_max}`, trop: g.instagram > g.instagram_max },
+  ];
+  $("textes").innerHTML = blocs.map((b, i) => `<div class="texte">
+      <div class="texte-tete"><b>${b.titre}</b><span class="compte ${b.trop ? "trop" : ""}">${b.compte}</span>
+        <button class="btn btn-2" type="button" data-copie="${i}">Copier</button></div>
+      <pre id="txt-${i}">${esc(b.txt)}</pre></div>`).join("");
+  $("contenu").hidden = false;
+}
+
+async function charger(decalage) {
+  $("erreur").hidden = true;
+  try {
+    // Les polices doivent être prêtes avant de dessiner, sinon le canvas prend la police de secours.
+    await Promise.all(["900 100px", "800 100px", "700 100px", "400 100px"].map((f) => document.fonts.load(`${f} "Public Sans"`))
+      .concat(document.fonts.load('700 100px "JetBrains Mono"'))).catch(() => {});
+    rendre(await api("/api/publication", { jour: jourParis(decalage) }));
+  } catch (e) {
+    $("contenu").hidden = true;
+    $("sous").textContent = "";
+    $("erreur").textContent = "Impossible de charger le post. Vérifie que le serveur tourne, puis recharge la page.";
+    $("erreur").hidden = false;
+  }
+}
+
+document.addEventListener("click", (e) => {
+  const j = e.target.closest("[data-j]");
+  if (j) {
+    $("jours").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", b === j));
+    charger(Number(j.dataset.j));
+  }
+  const png = e.target.closest("[data-png]");
+  if (png) telecharger(images[Number(png.dataset.png)], Number(png.dataset.png));
+  if (e.target.closest("#tout")) images.forEach((c, i) => setTimeout(() => telecharger(c, i), i * 250));
+  const c = e.target.closest("[data-copie]");
+  if (c) {
+    navigator.clipboard?.writeText($("txt-" + c.dataset.copie).textContent).then(() => {
+      c.textContent = "Copié"; setTimeout(() => (c.textContent = "Copier"), 1500);
+    });
+  }
+});
+charger(0);
+</script>
+</body>
+</html>

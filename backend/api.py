@@ -16,6 +16,7 @@ from sqlalchemy import func, select
 
 from backend import base
 from backend import regles as R
+from backend.publication import composer
 from backend.regles import Droit, Statut, evaluer
 
 PARIS = ZoneInfo("Europe/Paris")
@@ -116,6 +117,15 @@ async def aujourdhui(jour: date | None = None):
     reponse = {"jour": jour.isoformat(), "mis_a_jour": heure(maj), "trains": trains}
     app.state.cache[cle] = (time.monotonic(), reponse)
     return reponse
+
+
+@app.get("/api/publication")
+async def publication(jour: date | None = None):
+    """Post quotidien : chiffres, liste et textes à publier (page interne publications.html)."""
+    auj = datetime.now(PARIS).date()
+    jour = jour or auj
+    d = await aujourdhui(jour)
+    return composer(jour, d["trains"], d["mis_a_jour"], auj)
 
 
 async def _details(cx, circs) -> list[dict]:

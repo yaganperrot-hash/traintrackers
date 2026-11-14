@@ -15,6 +15,15 @@
 - [ ] TER Normandie (Krono+), Centre-Val de Loire (Rémi / Rémi Express), Pays de la Loire (suppressions),
       Sud (occasionnels) ; G30 : délai de 90 j et train supprimé. Liens dans `docs/regles-remboursement.md`.
 
+## Post quotidien (jalon 4) — reste à faire
+- [ ] **Envoi par e-mail** du post du soir : demande un compte d'envoi et un secret dans `.env` (zone critique).
+- [ ] **Déclenchement à heure fixe** (scheduler) : sans e-mail il n'y a rien à déclencher, la page
+      `/publications.html` calcule le post à la demande (« arrêté à » = heure du dernier relevé). À faire avec l'e-mail.
+- [ ] **Heure du post** : 21 h proposé, les trains du soir n'y sont pas. À trancher.
+- [ ] `publications.html` est servie comme les autres pages (`noindex` seulement) : la protéger ou la sortir
+      du site avant la mise en ligne publique.
+- [ ] Déployer sur le VPS (connexion SSH refusée à Claude le 2026-11-14 : à lancer à la main).
+
 ## Prochaine session
 - [ ] Jalon 1 : analyse de la journée complète du 2026-11-10 sur le VPS, conclusions dans `PROJECT.md`.
 - [ ] Jalon 3 : mesurer la place prise par jour en base (≈ 30 Mo/jour au premier relevé, plus que prévu).
